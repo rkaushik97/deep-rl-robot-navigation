@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>turtlebot3_drl_gazebo</name>
+  <version>0.1.0</version>
+  <description>DRL sim assets: world, robot model, bridge, obstacle animator plugin.</description>
+  <maintainer email="kaushikraghupathruni@gmail.com">kaushik</maintainer>
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>gz_sim_vendor</depend>         <!-- gz-sim 8 (Harmonic) -->
+  <depend>gz_math_vendor</depend>
+  <depend>gz_msgs_vendor</depend>
+  <depend>gz_plugin_vendor</depend>      <!-- needed to build the C++ obstacle plugin -->
+  <depend>gz_transport_vendor</depend>
+  <depend>sdformat_vendor</depend>
+
+  <exec_depend>ros_gz_sim</exec_depend>          <!-- launches gz from ROS -->
+  <exec_depend>ros_gz_bridge</exec_depend>       <!-- bridges /scan, /cmd_vel, etc. -->
+  <exec_depend>ros_gz_interfaces</exec_depend>
+  <exec_depend>turtlebot3_description</exec_depend>
+
+  <export><build_type>ament_cmake</build_type></export>
+</package>

@@ -216,3 +216,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ROS 2 / colcon
+/build/
+/install/
+/log/
+/src/turtlebot3_drl/model/
+*.pt
+*.pkl
+
+# robot wheel meshes — the Python template's wheels/ rule above also matches these
+!src/turtlebot3_drl_gazebo/models/turtlebot3_common/meshes/wheels/

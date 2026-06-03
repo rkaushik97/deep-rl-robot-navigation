@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.22)
+project(turtlebot3_drl_gazebo)
+
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(gz_sim_vendor REQUIRED)
+find_package(gz-sim REQUIRED)
+find_package(gz_math_vendor REQUIRED)
+find_package(gz-math REQUIRED)
+find_package(gz_plugin_vendor REQUIRED)
+find_package(gz-plugin REQUIRED)
+find_package(gz_msgs_vendor REQUIRED)
+find_package(gz-msgs10 REQUIRED)
+find_package(gz_transport_vendor REQUIRED)
+find_package(gz-transport13 REQUIRED)
+find_package(sdformat_vendor REQUIRED)
+find_package(sdformat REQUIRED)
+
+# Custom Gazebo system plugin that animates the moving obstacles in the world.
+add_library(obstacle_animator SHARED src/obstacle_animator.cc)
+target_link_libraries(obstacle_animator
+  gz-sim::gz-sim
+  gz-math::gz-math
+  gz-msgs10::gz-msgs10
+  gz-plugin::register
+  gz-transport13::gz-transport13
+  sdformat::sdformat
+)
+
+install(TARGETS obstacle_animator
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION bin/${PROJECT_NAME}
+)
+
+# Install the sim assets (no rviz/ — RViz dropped from the lean trainer).
+install(DIRECTORY launch models worlds params
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Adds share/<pkg>/models + worlds to GZ_SIM_RESOURCE_PATH and lib/<pkg> to the
+# plugin path automatically when this package is sourced.
+ament_environment_hooks(
+  "${CMAKE_CURRENT_SOURCE_DIR}/hooks/resource_paths.dsv.in"
+)
+
+ament_package()

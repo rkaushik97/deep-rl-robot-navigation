@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>turtlebot3_drl</name>
+  <version>0.1.0</version>
+  <description>Lean DDPG/TD3/SAC trainer for TurtleBot3.</description>
+  <maintainer email="kaushikraghupathruni@gmail.com">kaushik</maintainer>
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <depend>rclpy</depend>                          <!-- ROS 2 Python API -->
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>ros_gz_interfaces</depend>              <!-- pause/unpause world service types -->
+  <depend>turtlebot3_msgs</depend>                <!-- your DrlStep/Goal/RingGoal -->
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>turtlebot3_drl_gazebo</exec_depend>
+
+  <export><build_type>ament_python</build_type></export>
+</package>
