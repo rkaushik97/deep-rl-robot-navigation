@@ -12,7 +12,7 @@ EXP=${1:?need EXP_NAME}
 MSG=${2:-"experiment: $EXP"}
 
 # -A so file deletions (e.g. removed algorithms) are staged too, not just adds/mods
-git add -A experiments/"$EXP" scripts/ .gitignore \
+git add -A experiments/"$EXP" experiments/_comparison_success_ma.png scripts/ .gitignore \
         src/turtlebot3_drl/turtlebot3_drl \
         src/turtlebot3_drl/setup.py \
         src/turtlebot3_msgs runs/DDPG_RESULTS.md 2>/dev/null || true
