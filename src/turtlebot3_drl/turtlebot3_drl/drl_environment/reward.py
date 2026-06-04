@@ -1,7 +1,8 @@
-from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM, PROGRESS_K
+from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM, PROGRESS_K, OBSTACLE_K, OBSTACLE_SAFE, SPEED_LINEAR_MAX
 
 goal_dist_initial = 0
 prev_goal_dist = 0      # for potential-based progress shaping (reward_P); reset per episode
+prev_min_obs = 99.0     # for approach-aware obstacle penalty (reward_O); reset per episode
 
 reward_function_internal = None
 
@@ -149,13 +150,85 @@ def get_reward_P(succeed, action_linear, action_angular, goal_dist, goal_angle, 
         })
         return float(reward)
 
+def get_reward_O(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # exp003: sparse + progress + smooth OBSTACLE-PROXIMITY penalty.
+        # Failure analysis: ~74% of wall collisions are "navigate toward goal at near-max
+        # speed, then clip a wall" with no slowdown near obstacles. This term makes being
+        # near an obstacle costly: 0 at >= OBSTACLE_SAFE m, ramping linearly to -OBSTACLE_K
+        # at contact -> teaches clearance AND implicit slowdown in tight spaces. Kept small
+        # (~0.4 peak, comparable to the progress term) so Q stays O(1).
+        global prev_goal_dist, prev_min_obs
+        r_progress = max(-1.0, min(1.0, PROGRESS_K * (prev_goal_dist - goal_dist)))
+        prev_goal_dist = goal_dist
+
+        # APPROACH-AWARE obstacle penalty: fire ONLY when CLOSING on an obstacle inside the
+        # danger zone (quadratic in proximity). A static proximity penalty (every near-wall
+        # step) accumulated to ~-8/episode and COLLAPSED the policy, because navigating a
+        # cluttered stage REQUIRES being near walls -> the penalty punished necessary
+        # navigation, the value function craters, the agent over-avoids (timeouts) and still
+        # crashes. Gating on "getting closer" means it fires only while driving TOWARD a wall
+        # (the actual clip failure), never while following a wall in parallel -> can't
+        # accumulate, targets the real behaviour.
+        r_obstacle = 0.0
+        if min_obstacle_dist < OBSTACLE_SAFE and min_obstacle_dist < prev_min_obs:
+            prox = (OBSTACLE_SAFE - min_obstacle_dist) / OBSTACLE_SAFE   # 0 at SAFE, 1 at contact
+            r_obstacle = -OBSTACLE_K * prox * prox
+        prev_min_obs = min_obstacle_dist
+
+        terminal = 0.0
+        if succeed == SUCCESS:
+            terminal = 1.0
+        elif succeed == COLLISION_OBSTACLE or succeed == COLLISION_WALL:
+            terminal = -1.0
+
+        reward = r_progress + r_obstacle + terminal
+        last_components.clear()
+        last_components.update({
+            'r_yaw': 0.0, 'r_distance': float(r_progress), 'r_obstacle': float(r_obstacle),
+            'r_vlinear': 0.0, 'r_vangular': 0.0, 'r_step': 0.0,
+            'r_terminal': float(terminal),
+        })
+        return float(reward)
+
+def get_reward_V(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # exp004: sparse + progress + SPEED-MODULATED obstacle penalty.
+        # Failure analysis: ~85% of walls are "clip while navigating", 56% at high forward
+        # speed. The proximity penalty (exp003) was neutral because navigating a cluttered
+        # stage REQUIRES being near walls. This instead penalises being FAST while near an
+        # obstacle -> teaches "slow down in clutter" without punishing slow careful gap-
+        # navigation (penalty is ~0 when slow OR far; max only when fast AND close).
+        global prev_goal_dist
+        r_progress = max(-1.0, min(1.0, PROGRESS_K * (prev_goal_dist - goal_dist)))
+        prev_goal_dist = goal_dist
+
+        r_speed = 0.0
+        if min_obstacle_dist < OBSTACLE_SAFE:
+            speed = max(0.0, action_linear) / SPEED_LINEAR_MAX        # 0..1 forward-speed fraction
+            prox = (OBSTACLE_SAFE - min_obstacle_dist) / OBSTACLE_SAFE  # 0 at SAFE, 1 at contact
+            r_speed = -OBSTACLE_K * speed * prox
+
+        terminal = 0.0
+        if succeed == SUCCESS:
+            terminal = 1.0
+        elif succeed == COLLISION_OBSTACLE or succeed == COLLISION_WALL:
+            terminal = -1.0
+
+        reward = r_progress + r_speed + terminal
+        last_components.clear()
+        last_components.update({
+            'r_yaw': 0.0, 'r_distance': float(r_progress), 'r_obstacle': float(r_speed),
+            'r_vlinear': 0.0, 'r_vangular': 0.0, 'r_step': 0.0, 'r_terminal': float(terminal),
+        })
+        return float(reward)
+
 # Define your own reward function by defining a new function: 'get_reward_X'
 # Replace X with your reward function name and configure it in settings.py
 
 def reward_initalize(init_distance_to_goal):
-    global goal_dist_initial, prev_goal_dist
+    global goal_dist_initial, prev_goal_dist, prev_min_obs
     goal_dist_initial = init_distance_to_goal
     prev_goal_dist = init_distance_to_goal
+    prev_min_obs = 99.0
 
 function_name = "get_reward_" + REWARD_FUNCTION
 reward_function_internal = globals()[function_name]

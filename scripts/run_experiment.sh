@@ -14,6 +14,7 @@ REWARD=${3:-S}         # S=clean sparse, A/B=dense
 DYN=${4:-True}         # dynamic-goal curriculum on/off
 MAXEP=${5:-1000}       # stop after N episodes
 DOM=${6:-42}           # ROS_DOMAIN_ID
+WARMSTART=${7:-}       # optional: path to a prior session dir to warm-start weights from (*_best.pt)
 
 EXPDIR=$BASE/experiments/$EXP
 mkdir -p "$EXPDIR"
@@ -31,6 +32,7 @@ export GZ_PARTITION=$EXP
 export DRL_REWARD=$REWARD
 export DRL_DYNAMIC_GOALS=$DYN
 export DRL_MAX_EPISODES=$MAXEP
+export DRL_WARMSTART=$WARMSTART
 NPROC=$(nproc); export OMP_NUM_THREADS=$NPROC MKL_NUM_THREADS=$NPROC OPENBLAS_NUM_THREADS=$NPROC
 
 # --- config snapshot ---
@@ -42,6 +44,7 @@ NPROC=$(nproc); export OMP_NUM_THREADS=$NPROC MKL_NUM_THREADS=$NPROC OPENBLAS_NU
   echo "reward     : $REWARD"
   echo "dynamic_goals : $DYN"
   echo "max_episodes  : $MAXEP"
+  echo "warmstart  : ${WARMSTART:-none}"
   echo "stage      : 9   domain: $DOM   partition: $EXP"
   echo "--- key hyperparams (settings.py) ---"
   grep -E "^(LEARNING_RATE|TAU|BATCH_SIZE|DISCOUNT_FACTOR|HIDDEN_SIZE|STEP_TIME|OBSERVE_STEPS|CURRICULUM_MIN_RADIUS|CURRICULUM_MAX_RADIUS|VAL_EPS_PER_CHECKPOINT)" "$BASE/src/turtlebot3_drl/turtlebot3_drl/common/settings.py"
@@ -62,7 +65,7 @@ echo "env + goals started; waiting 10s..."; sleep 10
 tmux new-session -d -s "$EXP" -n train \
   "bash -c 'source /opt/ros/jazzy/setup.bash; source $BASE/install/setup.bash; \
             export DRLNAV_BASE_PATH=$BASE ROS_DOMAIN_ID=$DOM GZ_PARTITION=$EXP \
-                   DRL_REWARD=$REWARD DRL_DYNAMIC_GOALS=$DYN DRL_MAX_EPISODES=$MAXEP \
+                   DRL_REWARD=$REWARD DRL_DYNAMIC_GOALS=$DYN DRL_MAX_EPISODES=$MAXEP DRL_WARMSTART=\"$WARMSTART\" \
                    OMP_NUM_THREADS=$NPROC MKL_NUM_THREADS=$NPROC OPENBLAS_NUM_THREADS=$NPROC; \
             PYTHONUNBUFFERED=1 ros2 run turtlebot3_drl train_agent $ALGO 2>&1 | tee $EXPDIR/train.log; exec bash'"
 

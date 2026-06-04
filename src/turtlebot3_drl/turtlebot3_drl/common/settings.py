@@ -79,7 +79,9 @@ REAL_THRESHOLD_GOAL         = 0.35  # meters, minimum distance to goal that coun
 # DRL parameters
 REWARD_FUNCTION = os.environ.get('DRL_REWARD', 'A')   # env: DRL_REWARD (S=clean sparse, P=sparse+progress, A/B=dense). Defined in reward.py
 REWARD_SCALE    = 1.0       # 1.0 = canonical DDPG/TD3 magnitude (lean repo starts with DDPG). Set 0.1 for SAC's entropy/Q balance. Scales reward MAGNITUDE only — compare success rate, not raw reward, across runs.
-PROGRESS_K      = float(os.environ.get('DRL_PROGRESS_K', '2.0'))   # reward_P: gain on closing-distance shaping (potential-based, policy-invariant). env: DRL_PROGRESS_K.
+PROGRESS_K      = float(os.environ.get('DRL_PROGRESS_K', '2.0'))     # reward_P/_O: gain on closing-distance shaping (potential-based, policy-invariant). env: DRL_PROGRESS_K.
+OBSTACLE_K      = float(os.environ.get('DRL_OBSTACLE_K', '0.5'))     # reward_O: peak obstacle-proximity penalty at contact (quadratic ramp). env: DRL_OBSTACLE_K.
+OBSTACLE_SAFE   = float(os.environ.get('DRL_OBSTACLE_SAFE', '0.40')) # reward_O: distance (m) within which the quadratic obstacle penalty ramps from 0 (at SAFE) to -OBSTACLE_K (contact). env: DRL_OBSTACLE_SAFE.
 ACTION_SIZE     = 2         # Not used for DQN, see DQN_ACTION_SIZE
 HIDDEN_SIZE     = 512       # 1024 was tried for SAC v2 — caused policy collapse, reverted
 

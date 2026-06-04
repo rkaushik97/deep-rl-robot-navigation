@@ -21,9 +21,7 @@ echo "=== staged for commit (verify NO .pt/.pkl/model/ below) ==="
 git status --short
 echo
 if [ "${CONFIRM:-0}" = "1" ]; then
-  git commit -m "$MSG
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+  git commit -m "$MSG"
   git push origin main
   echo "pushed to origin/main ✓"
 else

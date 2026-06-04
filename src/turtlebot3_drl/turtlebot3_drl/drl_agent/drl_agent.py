@@ -86,6 +86,18 @@ class DrlAgent(Node):
             print(f"loaded model {self.load_session} (eps {self.episode}): {self.model.get_model_parameters()}")
         else:
             self.sm.new_session_dir(util.stage)
+            warmstart = os.environ.get('DRL_WARMSTART', '')
+            if warmstart:
+                # WARM-START: load weights from a prior run's *_best.pt into the fresh
+                # model, but keep a FRESH replay buffer + NEW session and SKIP the observe
+                # phase (the loaded policy is already trained, so every new transition uses
+                # the CURRENT reward function). Lets us add a dense reward component on top
+                # of a working policy instead of re-bootstrapping from scratch.
+                for net in self.model.networks:
+                    fp = os.path.join(warmstart, f"{net.name}_stage{self.sm.stage}_best.pt")
+                    net.load_state_dict(torch.load(fp, map_location=self.device))
+                self.total_steps = self.observe_steps   # skip observe -> use the loaded policy from step 1
+                print(f"[warmstart] loaded best weights from {warmstart}; fresh buffer; observe skipped", flush=True)
             self.sm.store_model(self.model)
 
         self.graph.session_dir = self.sm.session_dir
