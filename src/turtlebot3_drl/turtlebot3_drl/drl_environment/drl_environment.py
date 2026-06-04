@@ -39,7 +39,8 @@ from . import reward as rw
 from ..common import utilities as util
 from ..common.settings import ENABLE_BACKWARD, EPISODE_TIMEOUT_SECONDS, ENABLE_MOTOR_NOISE, UNKNOWN, SUCCESS, COLLISION_WALL, COLLISION_OBSTACLE, TIMEOUT, TUMBLE, \
                                 TOPIC_SCAN, TOPIC_VELO, TOPIC_ODOM, ARENA_LENGTH, ARENA_WIDTH, MAX_NUMBER_OBSTACLES, OBSTACLE_RADIUS, LIDAR_DISTANCE_CAP, \
-                                    SPEED_LINEAR_MAX, SPEED_ANGULAR_MAX, THRESHOLD_COLLISION, THREHSOLD_GOAL, ENABLE_DYNAMIC_GOALS
+                                    SPEED_LINEAR_MAX, SPEED_ANGULAR_MAX, THRESHOLD_COLLISION, THREHSOLD_GOAL, ENABLE_DYNAMIC_GOALS, \
+                                    CURRICULUM_MIN_RADIUS, CURRICULUM_MAX_RADIUS
 
 # Automatically retrievew from Gazebo model configuration (40 by default).
 # Can be set manually if needed.
@@ -83,7 +84,7 @@ class DRLEnvironment(Node):
         self.scan_ranges = [LIDAR_DISTANCE_CAP] * NUM_SCAN_SAMPLES
         self.obstacle_distance = LIDAR_DISTANCE_CAP
 
-        self.difficulty_radius = 1
+        self.difficulty_radius = CURRICULUM_MIN_RADIUS   # start at the (non-trivial) floor
         self.local_step = 0
         self.time_sec = 0
 
@@ -204,14 +205,20 @@ class DRLEnvironment(Node):
         req = RingGoal.Request()
         req.robot_pose_x = self.robot_x
         req.robot_pose_y = self.robot_y
-        req.radius = numpy.clip(self.difficulty_radius, 0.5, 4)
+        # CURRICULUM (fixed): clamp the radius to [CURRICULUM_MIN_RADIUS, CURRICULUM_MAX_RADIUS]
+        # so goals are NEVER trivial. The old [0.5, 4] floor collapsed to ~0.2m goals
+        # (arm's length) when the agent failed early -> 85% "success" on a trivial task
+        # but 27% on the real benchmark. Floor >= benchmark-relevant distance keeps every
+        # goal real navigation; asymmetric ramp (faster up, slower down) drives difficulty
+        # UP with success toward the full benchmark instead of collapsing to the floor.
+        req.radius = float(numpy.clip(self.difficulty_radius, CURRICULUM_MIN_RADIUS, CURRICULUM_MAX_RADIUS))
         if success:
-            self.difficulty_radius *= 1.01
+            self.difficulty_radius = min(self.difficulty_radius * 1.02, CURRICULUM_MAX_RADIUS)
             while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('success service not available, waiting again...')
             self.task_succeed_client.call_async(req)
         else:
-            self.difficulty_radius *= 0.99
+            self.difficulty_radius = max(self.difficulty_radius * 0.99, CURRICULUM_MIN_RADIUS)
             while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('fail service not available, waiting again...')
             self.task_fail_client.call_async(req)
@@ -255,6 +262,7 @@ class DRLEnvironment(Node):
         response.reward = 0.0
         response.done = False
         response.distance_traveled = 0.0
+        response.reward_components = [0.0] * len(rw.REWARD_COMPONENT_NAMES)
         rw.reward_initalize(self.initial_distance_to_goal)
         return response
 
@@ -283,6 +291,7 @@ class DRLEnvironment(Node):
         response.state = self.get_state(request.previous_action[LINEAR], request.previous_action[ANGULAR])
         response.reward = rw.get_reward(self.succeed, action_linear, action_angular, self.goal_distance,
                                             self.goal_angle, self.obstacle_distance)
+        response.reward_components = rw.get_last_components_ordered()
         response.done = self.done
         response.success = self.succeed
         response.distance_traveled = 0.0

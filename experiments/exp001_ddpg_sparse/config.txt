@@ -1,0 +1,19 @@
+experiment : exp001_ddpg_sparse
+datetime   : 2026-06-04 17:56:19
+git_commit : 83f9244  (dirty: yes)
+algorithm  : ddpg
+reward     : S
+dynamic_goals : True
+max_episodes  : 1000
+stage      : 9   domain: 42   partition: exp001_ddpg_sparse
+--- key hyperparams (settings.py) ---
+CURRICULUM_MIN_RADIUS    = 2.0      # FIX: floor so goals are never trivial. Old 0.5 collapsed to ~0.2m goals -> 85% on a trivial task but 27% on the real benchmark.
+CURRICULUM_MAX_RADIUS    = 4.0      # cap; benchmark static goals reach ~3.4m, so [2.0,4.0] spans real-navigation difficulty.
+HIDDEN_SIZE     = 512       # 1024 was tried for SAC v2 — caused policy collapse, reverted
+BATCH_SIZE      = 128       # Reference winning-DDPG value (tomasvr/turtlebot3_drlnav). 1024 + low lr starved effective updates -> policy collapse on stage 9.
+DISCOUNT_FACTOR = 0.99
+LEARNING_RATE   = 0.003     # Reference winning-DDPG value. 3e-4 was 10x too slow: actor locked in the r_vlinear max-speed habit before the critic learned obstacle avoidance -> collapse.
+TAU             = 0.003     # Reference winning-DDPG value (NOT a "SAC value"). 3e-4 made target tracking 10x too slow.
+OBSERVE_STEPS   = 25000     # At training start random actions are taken for N steps for better exploration
+STEP_TIME       = 0.01      # Reference winning-DDPG value: a defined, consistent action-execution window. 0.0 made the MDP timestep equal to variable ROS service latency (ill-defined).
+VAL_EPS_PER_CHECKPOINT   = 20    # every MODEL_STORE_INTERVAL eps, pause and run N deterministic (no-noise) episodes; logs to _eval_stage<N>.tsv in the session dir and saves *_best.pt on improvement. 0 disables.

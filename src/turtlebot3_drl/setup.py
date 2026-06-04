@@ -14,13 +14,14 @@ setup(
     zip_safe=True,
     maintainer='kaushik',
     maintainer_email='kaushikraghupathruni@gmail.com',
-    description='Lean DDPG/TD3/SAC trainer for TurtleBot3.',
+    description='Single-agent DDPG trainer for TurtleBot3 (experiment-tracked).',
     license='Apache 2.0',
     entry_points={
         'console_scripts': [
             'environment = turtlebot3_drl.drl_environment.drl_environment:main',
             'gazebo_goals = turtlebot3_drl.drl_gazebo.drl_gazebo:main',
-            # train_agent/test_agent (Step 6) added later
+            'train_agent = turtlebot3_drl.drl_agent.drl_agent:main_train',
+            'test_agent = turtlebot3_drl.drl_agent.drl_agent:main_test',
         ],
     },
 )

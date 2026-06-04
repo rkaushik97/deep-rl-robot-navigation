@@ -1,12 +1,19 @@
+import os
 # ===================================================================== #
 #                           GENERAL SETTINGS                            #
 # ===================================================================== #
+# Experiment-overridable knobs (set by scripts/run_experiment.sh per run, so each
+# experiment is reproducible without editing/rebuilding). Defaults below apply when
+# the env vars are unset.
 
-ENABLE_BACKWARD          = True     # Enable backward movement of the robot (matches TD3's action space; lets robot reverse out of obstacle traps on stage 9)
+ENABLE_BACKWARD          = False    # Forward-only action space [0, 0.22] m/s. The 100% DDPG example used False; backward let the robot reverse into walls (~80% wall collisions).
 ENABLE_STACKING          = False    # Enable processing multiple consecutive scan frames at every observation step
 ENABLE_VISUAL            = False    # Meant to be used only during evaluation/testing phase
 ENABLE_TRUE_RANDOM_GOALS = False    # If false, goals are selected semi-randomly from a list of known valid goal positions
-ENABLE_DYNAMIC_GOALS     = False    # If true, goal difficulty (distance) is adapted according to current success rate
+ENABLE_DYNAMIC_GOALS     = (os.environ.get('DRL_DYNAMIC_GOALS', 'True') == 'True')   # curriculum on/off (env: DRL_DYNAMIC_GOALS). Goal spawns on a difficulty_radius ring, clamped to [CURRICULUM_MIN_RADIUS, CURRICULUM_MAX_RADIUS].
+MAX_TRAINING_EPISODES    = int(os.environ.get('DRL_MAX_EPISODES', '0'))              # stop training after N episodes (env: DRL_MAX_EPISODES); 0 = unlimited.
+CURRICULUM_MIN_RADIUS    = 2.0      # FIX: floor so goals are never trivial. Old 0.5 collapsed to ~0.2m goals -> 85% on a trivial task but 27% on the real benchmark.
+CURRICULUM_MAX_RADIUS    = 4.0      # cap; benchmark static goals reach ~3.4m, so [2.0,4.0] spans real-navigation difficulty.
 MODEL_STORE_INTERVAL     = 100      # Store the model weights every N episodes
 GRAPH_DRAW_INTERVAL      = 10       # Draw the graph every N episodes (drawing too often will slow down training)
 GRAPH_AVERAGE_REWARD     = 10       # Average the reward graph over every N episodes
@@ -17,7 +24,7 @@ GRAPH_AVERAGE_REWARD     = 10       # Average the reward graph over every N epis
 # ===================================================================== #
 
 # --- SIMULATION ENVIRONMENT SETTINGS ---
-REWARD_FUNCTION = "A"           # Defined in reward.py
+REWARD_FUNCTION = os.environ.get('DRL_REWARD', 'A')   # env: DRL_REWARD (S=clean sparse, A/B/..=dense). Defined in reward.py
 EPISODE_TIMEOUT_SECONDS = 50    # Number of seconds after which episode timeout occurs
 
 TOPIC_SCAN = 'scan'
@@ -70,53 +77,27 @@ REAL_THRESHOLD_GOAL         = 0.35  # meters, minimum distance to goal that coun
 # ===================================================================== #
 
 # DRL parameters
-REWARD_FUNCTION = "A"       # Defined in reward.py
+REWARD_FUNCTION = os.environ.get('DRL_REWARD', 'A')   # env: DRL_REWARD (S=clean sparse, P=sparse+progress, A/B=dense). Defined in reward.py
 REWARD_SCALE    = 1.0       # 1.0 = canonical DDPG/TD3 magnitude (lean repo starts with DDPG). Set 0.1 for SAC's entropy/Q balance. Scales reward MAGNITUDE only — compare success rate, not raw reward, across runs.
+PROGRESS_K      = float(os.environ.get('DRL_PROGRESS_K', '2.0'))   # reward_P: gain on closing-distance shaping (potential-based, policy-invariant). env: DRL_PROGRESS_K.
 ACTION_SIZE     = 2         # Not used for DQN, see DQN_ACTION_SIZE
 HIDDEN_SIZE     = 512       # 1024 was tried for SAC v2 — caused policy collapse, reverted
 
-BATCH_SIZE      = 256       # Steadier SAC critic updates (sac_5 value)
+BATCH_SIZE      = 128       # Reference winning-DDPG value (tomasvr/turtlebot3_drlnav). 1024 + low lr starved effective updates -> policy collapse on stage 9.
 BUFFER_SIZE     = 1000000   # Number of samples stored in replay buffer before FIFO
 DISCOUNT_FACTOR = 0.99
-LEARNING_RATE   = 0.0003    # canonical/stable SAC lr (3e-4); 3e-3 risks entropy/Q blow-up
-TAU             = 0.003
+LEARNING_RATE   = 0.003     # Reference winning-DDPG value. 3e-4 was 10x too slow: actor locked in the r_vlinear max-speed habit before the critic learned obstacle avoidance -> collapse.
+TAU             = 0.003     # Reference winning-DDPG value (NOT a "SAC value"). 3e-4 made target tracking 10x too slow.
 
 OBSERVE_STEPS   = 25000     # At training start random actions are taken for N steps for better exploration
-STEP_TIME       = 0.05      # Deadline-paced ~20Hz control cadence (sac_5 value). 0.0 (uncapped) inflated episodes to ~450 steps / 45% timeouts. gz-sim is wall-clock paced.
+STEP_TIME       = 0.01      # Reference winning-DDPG value: a defined, consistent action-execution window. 0.0 made the MDP timestep equal to variable ROS service latency (ill-defined).
 EPSILON_DECAY   = 0.9995    # Epsilon decay per step
 EPSILON_MINIMUM = 0.05
-
-# DQN parameters
-DQN_ACTION_SIZE = 5
-TARGET_UPDATE_FREQUENCY = 1000
-
-# DDPG parameters
-
-# TD3 parameters
-POLICY_NOISE            = 0.2
-POLICY_NOISE_CLIP       = 0.5
-POLICY_UPDATE_FREQUENCY = 2
-
-# REDQ parameters
-REDQ_ENSEMBLE_SIZE      = 10     # N — critics in the ensemble
-REDQ_TARGET_SUBSET      = 2      # M — random subset used when building the TD target (M <= N)
-REDQ_UTD_RATIO          = 20     # G — gradient updates per env step
-REDQ_INIT_TEMPERATURE   = 0.2    # initial entropy coefficient α
-REDQ_AUTOTUNE_ALPHA     = True   # learn α so policy entropy tracks REDQ_TARGET_ENTROPY
-REDQ_TARGET_ENTROPY     = None   # None → default heuristic of -|action_size|
-REDQ_BATCH_SIZE         = 512    # mini-batch for REDQ (bigger → better GPU utilisation)
-
-# SAC parameters (Haarnoja et al. 2018 v2, auto-tuned α)
-SAC_ALPHA_LR             = 3e-4   # optimiser lr for the temperature scalar
-SAC_INIT_LOG_ALPHA       = 0.0    # log α(0) → α(0) = 1.0; tuned online
-SAC_TARGET_ENTROPY_SCALE = 0.5    # target entropy = -|A| * scale (0.5 → less forced exploration, exploit learned policy harder; sac_5 value)
-SAC_LOG_STD_MIN          = -20    # clamp on the Gaussian policy log_std for stability
-SAC_LOG_STD_MAX          = 2
 
 # Eval-based checkpoint selection: every MODEL_STORE_INTERVAL training eps,
 # pause and run N deterministic-policy episodes; save `_best.pt` only when
 # this score improves. Set to 0 to disable.
-VAL_EPS_PER_CHECKPOINT   = 50
+VAL_EPS_PER_CHECKPOINT   = 20    # every MODEL_STORE_INTERVAL eps, pause and run N deterministic (no-noise) episodes; logs to _eval_stage<N>.tsv in the session dir and saves *_best.pt on improvement. 0 disables.
 
 # Stacking
 STACK_DEPTH = 3             # Number of subsequent frames processed per step

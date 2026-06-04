@@ -227,3 +227,8 @@ __marimo__/
 
 # robot wheel meshes — the Python template's wheels/ rule above also matches these
 !src/turtlebot3_drl_gazebo/models/turtlebot3_common/meshes/wheels/
+
+# Track experiment artifacts (override the broad *.log rule) so each run is pushable.
+# Checkpoints/buffers stay ignored via *.pt/*.pkl + model/ above — only the text
+# log + config + analysis get committed.
+!experiments/**/*.log

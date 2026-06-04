@@ -1,0 +1,422 @@
+gpu torch available:  True
+device name:  NVIDIA H100 NVL
+training on stage: 9
+making new model dir: /home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/fond-filly/ddpg_12_stage_9
+Observe phase: 76/25000 steps
+Observe phase: 117/25000 steps
+Observe phase: 160/25000 steps
+Observe phase: 203/25000 steps
+Observe phase: 264/25000 steps
+Observe phase: 519/25000 steps
+Observe phase: 1082/25000 steps
+Observe phase: 1314/25000 steps
+Observe phase: 1647/25000 steps
+Observe phase: 1976/25000 steps
+Observe phase: 2006/25000 steps
+Observe phase: 2258/25000 steps
+Observe phase: 2791/25000 steps
+Observe phase: 3080/25000 steps
+Observe phase: 3173/25000 steps
+Observe phase: 3632/25000 steps
+Observe phase: 3891/25000 steps
+Observe phase: 4129/25000 steps
+Observe phase: 4493/25000 steps
+Observe phase: 4789/25000 steps
+Observe phase: 4819/25000 steps
+Observe phase: 4958/25000 steps
+Observe phase: 4990/25000 steps
+Observe phase: 5331/25000 steps
+Observe phase: 6296/25000 steps
+Observe phase: 6898/25000 steps
+Observe phase: 6928/25000 steps
+Observe phase: 7067/25000 steps
+Observe phase: 7103/25000 steps
+Observe phase: 7160/25000 steps
+Observe phase: 7378/25000 steps
+Observe phase: 7408/25000 steps
+Observe phase: 7632/25000 steps
+Observe phase: 8080/25000 steps
+Observe phase: 8276/25000 steps
+Observe phase: 8489/25000 steps
+Observe phase: 8899/25000 steps
+Observe phase: 9085/25000 steps
+Observe phase: 9115/25000 steps
+Observe phase: 9168/25000 steps
+Observe phase: 9242/25000 steps
+Observe phase: 9404/25000 steps
+Observe phase: 9923/25000 steps
+Observe phase: 10285/25000 steps
+Observe phase: 10775/25000 steps
+Observe phase: 11032/25000 steps
+Observe phase: 11343/25000 steps
+Observe phase: 11394/25000 steps
+Observe phase: 11446/25000 steps
+Observe phase: 11476/25000 steps
+Observe phase: 12257/25000 steps
+Observe phase: 12600/25000 steps
+Observe phase: 12757/25000 steps
+Observe phase: 13081/25000 steps
+Observe phase: 13472/25000 steps
+Observe phase: 13502/25000 steps
+Observe phase: 13554/25000 steps
+Observe phase: 13789/25000 steps
+Observe phase: 13951/25000 steps
+Observe phase: 14201/25000 steps
+Observe phase: 14798/25000 steps
+Observe phase: 15118/25000 steps
+Observe phase: 15340/25000 steps
+Observe phase: 15684/25000 steps
+Observe phase: 15728/25000 steps
+Observe phase: 16092/25000 steps
+Observe phase: 16407/25000 steps
+Observe phase: 16877/25000 steps
+Observe phase: 16907/25000 steps
+Observe phase: 16937/25000 steps
+Observe phase: 17093/25000 steps
+Observe phase: 17858/25000 steps
+Observe phase: 17907/25000 steps
+Observe phase: 18364/25000 steps
+Observe phase: 18503/25000 steps
+Observe phase: 18607/25000 steps
+Observe phase: 18938/25000 steps
+Observe phase: 19042/25000 steps
+Observe phase: 19474/25000 steps
+Observe phase: 19976/25000 steps
+Observe phase: 20038/25000 steps
+Observe phase: 20349/25000 steps
+Observe phase: 20786/25000 steps
+Observe phase: 21055/25000 steps
+Observe phase: 21395/25000 steps
+Observe phase: 21881/25000 steps
+Observe phase: 21982/25000 steps
+Observe phase: 22012/25000 steps
+Observe phase: 22580/25000 steps
+Observe phase: 22874/25000 steps
+Observe phase: 23157/25000 steps
+Observe phase: 23680/25000 steps
+Observe phase: 23766/25000 steps
+Observe phase: 24521/25000 steps
+Observe phase: 24769/25000 steps
+Epi: 1    R: 1       outcome: SUCCESS      steps: 319   steps_total: 25088  time: 6.50  
+saving data for episode: 1, location: /home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/fond-filly/ddpg_12_stage_9
+saving actor model for episode: 1
+saving target_actor model for episode: 1
+saving critic model for episode: 1
+saving target_critic model for episode: 1
+Epi: 2    R: -1      outcome: COLL_WALL    steps: 547   steps_total: 25635  time: 11.65 
+Epi: 3    R: -1      outcome: COLL_WALL    steps: 602   steps_total: 26237  time: 13.08 
+Epi: 4    R: -1      outcome: COLL_WALL    steps: 420   steps_total: 26657  time: 8.71  
+Epi: 5    R: -1      outcome: COLL_WALL    steps: 30    steps_total: 26687  time: 0.66  
+Epi: 6    R: -1      outcome: COLL_WALL    steps: 598   steps_total: 27285  time: 13.18 
+Epi: 7    R: -1      outcome: COLL_WALL    steps: 42    steps_total: 27327  time: 1.00  
+Epi: 8    R: -1      outcome: COLL_WALL    steps: 632   steps_total: 27959  time: 13.47 
+Epi: 9    R: 0       outcome: TIMEOUT      steps: 822   steps_total: 28781  time: 17.85 
+Epi: 10   R: -1      outcome: COLL_WALL    steps: 62    steps_total: 28843  time: 1.31  
+Epi: 11   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 28873  time: 0.64  
+Epi: 12   R: -1      outcome: COLL_WALL    steps: 47    steps_total: 28920  time: 0.99  
+Epi: 13   R: -1      outcome: COLL_WALL    steps: 702   steps_total: 29622  time: 15.23 
+Epi: 14   R: 0       outcome: TIMEOUT      steps: 804   steps_total: 30426  time: 17.22 
+Epi: 15   R: -1      outcome: COLL_WALL    steps: 214   steps_total: 30640  time: 4.65  
+Epi: 16   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 30670  time: 0.63  
+Epi: 17   R: -1      outcome: COLL_WALL    steps: 197   steps_total: 30867  time: 4.37  
+Epi: 18   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 30897  time: 0.66  
+Epi: 19   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 30927  time: 0.64  
+Epi: 20   R: -1      outcome: COLL_WALL    steps: 241   steps_total: 31168  time: 5.19  
+Epi: 21   R: 0       outcome: TIMEOUT      steps: 869   steps_total: 32037  time: 18.54 
+Epi: 22   R: -1      outcome: COLL_WALL    steps: 180   steps_total: 32217  time: 3.78  
+Epi: 23   R: -1      outcome: COLL_WALL    steps: 31    steps_total: 32248  time: 0.65  
+Epi: 24   R: -1      outcome: COLL_WALL    steps: 628   steps_total: 32876  time: 13.52 
+Epi: 25   R: -1      outcome: COLL_WALL    steps: 63    steps_total: 32939  time: 1.36  
+Epi: 26   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 32969  time: 0.66  
+Epi: 27   R: 0       outcome: TIMEOUT      steps: 802   steps_total: 33771  time: 17.25 
+Epi: 28   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 33801  time: 0.67  
+Epi: 29   R: -1      outcome: COLL_WALL    steps: 704   steps_total: 34505  time: 15.18 
+Epi: 30   R: -1      outcome: COLL_WALL    steps: 559   steps_total: 35064  time: 12.25 
+Epi: 31   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 35094  time: 0.63  
+Epi: 32   R: -1      outcome: COLL_WALL    steps: 33    steps_total: 35127  time: 0.71  
+Epi: 33   R: -1      outcome: COLL_WALL    steps: 252   steps_total: 35379  time: 5.57  
+Epi: 34   R: -1      outcome: COLL_WALL    steps: 34    steps_total: 35413  time: 0.73  
+Epi: 35   R: -1      outcome: COLL_WALL    steps: 623   steps_total: 36036  time: 13.44 
+Epi: 36   R: 0       outcome: TIMEOUT      steps: 804   steps_total: 36840  time: 17.48 
+Epi: 37   R: -1      outcome: COLL_WALL    steps: 273   steps_total: 37113  time: 5.97  
+Epi: 38   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 37143  time: 0.64  
+Epi: 39   R: 0       outcome: TIMEOUT      steps: 808   steps_total: 37951  time: 17.46 
+Epi: 40   R: 0       outcome: TIMEOUT      steps: 825   steps_total: 38776  time: 17.21 
+Epi: 41   R: -1      outcome: COLL_WALL    steps: 50    steps_total: 38826  time: 1.10  
+Epi: 42   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 38856  time: 0.64  
+Epi: 43   R: -1      outcome: COLL_WALL    steps: 349   steps_total: 39205  time: 7.57  
+Epi: 44   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 39235  time: 0.69  
+Epi: 45   R: -1      outcome: COLL_WALL    steps: 32    steps_total: 39267  time: 0.68  
+Epi: 46   R: -1      outcome: COLL_WALL    steps: 56    steps_total: 39323  time: 1.19  
+Epi: 47   R: 0       outcome: TIMEOUT      steps: 856   steps_total: 40179  time: 18.16 
+Epi: 48   R: -1      outcome: COLL_WALL    steps: 234   steps_total: 40413  time: 5.07  
+Epi: 49   R: -1      outcome: COLL_WALL    steps: 53    steps_total: 40466  time: 1.14  
+Epi: 50   R: -1      outcome: COLL_WALL    steps: 640   steps_total: 41106  time: 13.87 
+Epi: 51   R: -1      outcome: COLL_WALL    steps: 324   steps_total: 41430  time: 6.99  
+Epi: 52   R: -1      outcome: COLL_WALL    steps: 810   steps_total: 42240  time: 17.36 
+Epi: 53   R: -1      outcome: COLL_WALL    steps: 39    steps_total: 42279  time: 0.82  
+Epi: 54   R: -1      outcome: COLL_WALL    steps: 747   steps_total: 43026  time: 16.09 
+Epi: 55   R: -1      outcome: COLL_WALL    steps: 777   steps_total: 43803  time: 16.90 
+Epi: 56   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 43833  time: 0.68  
+Epi: 57   R: -1      outcome: COLL_WALL    steps: 146   steps_total: 43979  time: 3.20  
+Epi: 58   R: -1      outcome: COLL_WALL    steps: 43    steps_total: 44022  time: 0.92  
+Epi: 59   R: -1      outcome: COLL_WALL    steps: 674   steps_total: 44696  time: 14.64 
+Epi: 60   R: 0       outcome: TIMEOUT      steps: 886   steps_total: 45582  time: 18.83 
+Epi: 61   R: -1      outcome: COLL_WALL    steps: 214   steps_total: 45796  time: 4.60  
+Epi: 62   R: -1      outcome: COLL_WALL    steps: 103   steps_total: 45899  time: 2.17  
+Epi: 63   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 45929  time: 0.63  
+Epi: 64   R: -1      outcome: COLL_WALL    steps: 477   steps_total: 46406  time: 10.07 
+Epi: 65   R: 0       outcome: TIMEOUT      steps: 853   steps_total: 47259  time: 18.89 
+Epi: 66   R: -1      outcome: COLL_WALL    steps: 227   steps_total: 47486  time: 4.83  
+Epi: 67   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 47516  time: 0.64  
+Epi: 68   R: -1      outcome: COLL_WALL    steps: 629   steps_total: 48145  time: 13.87 
+Epi: 69   R: -1      outcome: COLL_WALL    steps: 32    steps_total: 48177  time: 0.71  
+Epi: 70   R: 0       outcome: TIMEOUT      steps: 834   steps_total: 49011  time: 18.49 
+Epi: 71   R: -1      outcome: COLL_WALL    steps: 178   steps_total: 49189  time: 4.01  
+Epi: 72   R: -1      outcome: COLL_WALL    steps: 52    steps_total: 49241  time: 1.14  
+Epi: 73   R: -1      outcome: COLL_WALL    steps: 697   steps_total: 49938  time: 15.00 
+Epi: 74   R: -1      outcome: COLL_WALL    steps: 453   steps_total: 50391  time: 9.73  
+Epi: 75   R: -1      outcome: COLL_WALL    steps: 562   steps_total: 50953  time: 12.15 
+Epi: 76   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 50983  time: 0.65  
+Epi: 77   R: -1      outcome: COLL_WALL    steps: 594   steps_total: 51577  time: 12.91 
+Epi: 78   R: -1      outcome: COLL_WALL    steps: 45    steps_total: 51622  time: 1.03  
+Epi: 79   R: 0       outcome: TIMEOUT      steps: 888   steps_total: 52510  time: 19.13 
+Epi: 80   R: -1      outcome: COLL_WALL    steps: 52    steps_total: 52562  time: 1.10  
+Epi: 81   R: -1      outcome: COLL_WALL    steps: 37    steps_total: 52599  time: 0.76  
+Epi: 82   R: -1      outcome: COLL_WALL    steps: 42    steps_total: 52641  time: 0.88  
+Epi: 83   R: 0       outcome: TIMEOUT      steps: 886   steps_total: 53527  time: 19.29 
+Epi: 84   R: 0       outcome: TIMEOUT      steps: 843   steps_total: 54370  time: 18.19 
+Epi: 85   R: -1      outcome: COLL_WALL    steps: 48    steps_total: 54418  time: 1.03  
+Epi: 86   R: -1      outcome: COLL_WALL    steps: 321   steps_total: 54739  time: 6.91  
+Epi: 87   R: -1      outcome: COLL_WALL    steps: 41    steps_total: 54780  time: 0.86  
+Epi: 88   R: -1      outcome: COLL_WALL    steps: 299   steps_total: 55079  time: 6.61  
+Epi: 89   R: 0       outcome: TIMEOUT      steps: 894   steps_total: 55973  time: 18.97 
+Epi: 90   R: -1      outcome: COLL_WALL    steps: 199   steps_total: 56172  time: 4.13  
+Epi: 91   R: -1      outcome: COLL_WALL    steps: 39    steps_total: 56211  time: 0.78  
+Epi: 92   R: -1      outcome: COLL_WALL    steps: 751   steps_total: 56962  time: 16.21 
+Epi: 93   R: -1      outcome: COLL_WALL    steps: 49    steps_total: 57011  time: 1.06  
+Epi: 94   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 57041  time: 0.63  
+Epi: 95   R: 0       outcome: TIMEOUT      steps: 884   steps_total: 57925  time: 19.28 
+Epi: 96   R: -1      outcome: COLL_WALL    steps: 41    steps_total: 57966  time: 0.89  
+Epi: 97   R: -1      outcome: COLL_WALL    steps: 30    steps_total: 57996  time: 0.67  
+Epi: 98   R: -1      outcome: COLL_WALL    steps: 694   steps_total: 58690  time: 15.09 
+Epi: 99   R: -1      outcome: COLL_WALL    steps: 606   steps_total: 59296  time: 13.26 
+Epi: 100  R: -1      outcome: COLL_WALL    steps: 54    steps_total: 59350  time: 1.18  
+saving data for episode: 100, location: /home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/fond-filly/ddpg_12_stage_9
+saving actor model for episode: 100
+saving target_actor model for episode: 100
+saving critic model for episode: 100
+saving target_critic model for episode: 100
+[val] ep 100: 0.0% over 20 det. eps  |  best: -100.0% @ ep 0
+[val] NEW BEST CHECKPOINT — ep 100, success 0.0%
+Epi: 101  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 59380  time: 0.65  
+Epi: 102  R: -1      outcome: COLL_WALL    steps: 34    steps_total: 59414  time: 0.72  
+Epi: 103  R: -1      outcome: COLL_WALL    steps: 625   steps_total: 60039  time: 13.47 
+Epi: 104  R: -1      outcome: COLL_WALL    steps: 47    steps_total: 60086  time: 0.98  
+Epi: 105  R: -1      outcome: COLL_WALL    steps: 613   steps_total: 60699  time: 13.04 
+Epi: 106  R: -1      outcome: COLL_WALL    steps: 808   steps_total: 61507  time: 16.91 
+Epi: 107  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 61537  time: 0.63  
+Epi: 108  R: -1      outcome: COLL_WALL    steps: 41    steps_total: 61578  time: 0.88  
+Epi: 109  R: -1      outcome: COLL_WALL    steps: 125   steps_total: 61703  time: 2.63  
+Epi: 110  R: -1      outcome: COLL_WALL    steps: 41    steps_total: 61744  time: 0.90  
+Epi: 111  R: -1      outcome: COLL_WALL    steps: 642   steps_total: 62386  time: 13.46 
+Epi: 112  R: 0       outcome: TIMEOUT      steps: 825   steps_total: 63211  time: 18.12 
+Epi: 113  R: -1      outcome: COLL_WALL    steps: 224   steps_total: 63435  time: 4.83  
+Epi: 114  R: -1      outcome: COLL_WALL    steps: 39    steps_total: 63474  time: 0.83  
+Epi: 115  R: -1      outcome: COLL_WALL    steps: 65    steps_total: 63539  time: 1.43  
+Epi: 116  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 63569  time: 0.63  
+Epi: 117  R: -1      outcome: COLL_WALL    steps: 462   steps_total: 64031  time: 9.86  
+Epi: 118  R: 0       outcome: TIMEOUT      steps: 793   steps_total: 64824  time: 16.82 
+Epi: 119  R: -1      outcome: COLL_WALL    steps: 241   steps_total: 65065  time: 5.12  
+Epi: 120  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 65095  time: 0.63  
+Epi: 121  R: -1      outcome: COLL_WALL    steps: 639   steps_total: 65734  time: 13.49 
+Epi: 122  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 65764  time: 0.64  
+Epi: 123  R: 0       outcome: TIMEOUT      steps: 823   steps_total: 66587  time: 18.08 
+Epi: 124  R: -1      outcome: COLL_WALL    steps: 167   steps_total: 66754  time: 3.49  
+Epi: 125  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 66784  time: 0.64  
+Epi: 126  R: 0       outcome: TIMEOUT      steps: 875   steps_total: 67659  time: 18.32 
+Epi: 127  R: -1      outcome: COLL_WALL    steps: 195   steps_total: 67854  time: 4.07  
+Epi: 128  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 67884  time: 0.62  
+Epi: 129  R: -1      outcome: COLL_WALL    steps: 527   steps_total: 68411  time: 11.64 
+Epi: 130  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 68441  time: 0.68  
+Epi: 131  R: -1      outcome: COLL_WALL    steps: 755   steps_total: 69196  time: 15.69 
+Epi: 132  R: 0       outcome: TIMEOUT      steps: 861   steps_total: 70057  time: 18.60 
+Epi: 133  R: -1      outcome: COLL_WALL    steps: 88    steps_total: 70145  time: 1.89  
+Epi: 134  R: -1      outcome: COLL_WALL    steps: 72    steps_total: 70217  time: 1.55  
+Epi: 135  R: -1      outcome: COLL_WALL    steps: 35    steps_total: 70252  time: 0.81  
+Epi: 136  R: -1      outcome: COLL_WALL    steps: 738   steps_total: 70990  time: 16.08 
+Epi: 137  R: 0       outcome: TIMEOUT      steps: 1049  steps_total: 72039  time: 22.25 
+Epi: 138  R: -1      outcome: COLL_WALL    steps: 202   steps_total: 72241  time: 4.45  
+Epi: 139  R: -1      outcome: COLL_WALL    steps: 35    steps_total: 72276  time: 0.75  
+Epi: 140  R: -1      outcome: COLL_WALL    steps: 285   steps_total: 72561  time: 5.86  
+Epi: 141  R: -1      outcome: COLL_WALL    steps: 94    steps_total: 72655  time: 1.99  
+Epi: 142  R: -1      outcome: COLL_WALL    steps: 273   steps_total: 72928  time: 5.71  
+Epi: 143  R: 0       outcome: TIMEOUT      steps: 945   steps_total: 73873  time: 19.54 
+Epi: 144  R: -1      outcome: COLL_WALL    steps: 297   steps_total: 74170  time: 6.10  
+Epi: 145  R: -1      outcome: COLL_WALL    steps: 36    steps_total: 74206  time: 0.73  
+Epi: 146  R: -1      outcome: COLL_WALL    steps: 782   steps_total: 74988  time: 16.94 
+Epi: 147  R: -1      outcome: COLL_WALL    steps: 74    steps_total: 75062  time: 1.54  
+Epi: 148  R: -1      outcome: COLL_WALL    steps: 76    steps_total: 75138  time: 1.63  
+Epi: 149  R: 0       outcome: TIMEOUT      steps: 1001  steps_total: 76139  time: 21.58 
+Epi: 150  R: -1      outcome: COLL_WALL    steps: 70    steps_total: 76209  time: 1.67  
+Epi: 151  R: -1      outcome: COLL_WALL    steps: 704   steps_total: 76913  time: 15.74 
+Epi: 152  R: -1      outcome: COLL_WALL    steps: 621   steps_total: 77534  time: 13.59 
+Epi: 153  R: -1      outcome: COLL_WALL    steps: 51    steps_total: 77585  time: 1.09  
+Epi: 154  R: -1      outcome: COLL_WALL    steps: 296   steps_total: 77881  time: 6.17  
+Epi: 155  R: -1      outcome: COLL_WALL    steps: 734   steps_total: 78615  time: 15.41 
+Epi: 156  R: 0       outcome: TIMEOUT      steps: 786   steps_total: 79401  time: 17.07 
+Epi: 157  R: -1      outcome: COLL_WALL    steps: 219   steps_total: 79620  time: 4.65  
+Epi: 158  R: -1      outcome: COLL_WALL    steps: 110   steps_total: 79730  time: 2.45  
+Epi: 159  R: -1      outcome: COLL_WALL    steps: 566   steps_total: 80296  time: 11.49 
+Epi: 160  R: 0       outcome: TIMEOUT      steps: 813   steps_total: 81109  time: 17.34 
+Epi: 161  R: -1      outcome: COLL_WALL    steps: 194   steps_total: 81303  time: 4.14  
+Epi: 162  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 81333  time: 0.66  
+Epi: 163  R: -1      outcome: COLL_WALL    steps: 438   steps_total: 81771  time: 8.98  
+Epi: 164  R: -1      outcome: COLL_WALL    steps: 55    steps_total: 81826  time: 1.15  
+Epi: 165  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 81856  time: 0.64  
+Epi: 166  R: 0       outcome: TIMEOUT      steps: 770   steps_total: 82626  time: 16.53 
+Epi: 167  R: -1      outcome: COLL_WALL    steps: 252   steps_total: 82878  time: 5.23  
+Epi: 168  R: -1      outcome: COLL_WALL    steps: 774   steps_total: 83652  time: 16.50 
+Epi: 169  R: -1      outcome: COLL_WALL    steps: 269   steps_total: 83921  time: 5.54  
+Epi: 170  R: -1      outcome: COLL_WALL    steps: 54    steps_total: 83975  time: 1.14  
+Epi: 171  R: -1      outcome: COLL_WALL    steps: 682   steps_total: 84657  time: 14.71 
+Epi: 172  R: -1      outcome: COLL_WALL    steps: 808   steps_total: 85465  time: 17.49 
+Epi: 173  R: -1      outcome: COLL_WALL    steps: 784   steps_total: 86249  time: 16.37 
+Epi: 174  R: -1      outcome: COLL_WALL    steps: 116   steps_total: 86365  time: 2.40  
+Epi: 175  R: -1      outcome: COLL_WALL    steps: 115   steps_total: 86480  time: 2.48  
+Epi: 176  R: -1      outcome: COLL_WALL    steps: 721   steps_total: 87201  time: 16.03 
+Epi: 177  R: 0       outcome: TIMEOUT      steps: 847   steps_total: 88048  time: 18.18 
+Epi: 178  R: -1      outcome: COLL_WALL    steps: 243   steps_total: 88291  time: 5.13  
+Epi: 179  R: -1      outcome: COLL_WALL    steps: 123   steps_total: 88414  time: 2.70  
+Epi: 180  R: -1      outcome: COLL_WALL    steps: 80    steps_total: 88494  time: 1.84  
+Epi: 181  R: -1      outcome: COLL_WALL    steps: 403   steps_total: 88897  time: 8.86  
+Epi: 182  R: 0       outcome: TIMEOUT      steps: 857   steps_total: 89754  time: 18.54 
+Epi: 183  R: -1      outcome: COLL_WALL    steps: 243   steps_total: 89997  time: 5.02  
+Epi: 184  R: -1      outcome: COLL_WALL    steps: 34    steps_total: 90031  time: 0.77  
+Epi: 185  R: -1      outcome: COLL_WALL    steps: 662   steps_total: 90693  time: 14.19 
+Epi: 186  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 90723  time: 0.63  
+Epi: 187  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 90753  time: 0.69  
+Epi: 188  R: 0       outcome: TIMEOUT      steps: 942   steps_total: 91695  time: 20.50 
+Epi: 189  R: -1      outcome: COLL_WALL    steps: 123   steps_total: 91818  time: 2.73  
+Epi: 190  R: -1      outcome: COLL_WALL    steps: 758   steps_total: 92576  time: 16.51 
+Epi: 191  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 92606  time: 0.68  
+Epi: 192  R: -1      outcome: COLL_WALL    steps: 351   steps_total: 92957  time: 7.75  
+Epi: 193  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 92987  time: 0.67  
+Epi: 194  R: -1      outcome: COLL_WALL    steps: 67    steps_total: 93054  time: 1.41  
+Epi: 195  R: -1      outcome: COLL_WALL    steps: 600   steps_total: 93654  time: 13.71 
+Epi: 196  R: -1      outcome: COLL_WALL    steps: 777   steps_total: 94431  time: 16.91 
+Epi: 197  R: 0       outcome: TIMEOUT      steps: 856   steps_total: 95287  time: 18.03 
+Epi: 198  R: -1      outcome: COLL_WALL    steps: 54    steps_total: 95341  time: 1.15  
+Epi: 199  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 95371  time: 0.64  
+Epi: 200  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 95401  time: 0.67  
+saving data for episode: 200, location: /home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/fond-filly/ddpg_12_stage_9
+saving actor model for episode: 200
+saving target_actor model for episode: 200
+saving critic model for episode: 200
+saving target_critic model for episode: 200
+[val] ep 200: 0.0% over 20 det. eps  |  best: 0.0% @ ep 100
+Epi: 201  R: -1      outcome: COLL_WALL    steps: 33    steps_total: 95434  time: 0.73  
+Epi: 202  R: -1      outcome: COLL_WALL    steps: 742   steps_total: 96176  time: 16.11 
+Epi: 203  R: 0       outcome: TIMEOUT      steps: 946   steps_total: 97122  time: 20.31 
+Epi: 204  R: -1      outcome: COLL_WALL    steps: 230   steps_total: 97352  time: 5.00  
+Epi: 205  R: -1      outcome: COLL_WALL    steps: 44    steps_total: 97396  time: 0.94  
+Epi: 206  R: -1      outcome: COLL_WALL    steps: 49    steps_total: 97445  time: 1.03  
+Epi: 207  R: -1      outcome: COLL_WALL    steps: 566   steps_total: 98011  time: 12.17 
+Epi: 208  R: 0       outcome: TIMEOUT      steps: 898   steps_total: 98909  time: 19.32 
+Epi: 209  R: -1      outcome: COLL_WALL    steps: 232   steps_total: 99141  time: 4.93  
+Epi: 210  R: -1      outcome: COLL_WALL    steps: 560   steps_total: 99701  time: 12.52 
+Epi: 211  R: -1      outcome: COLL_WALL    steps: 54    steps_total: 99755  time: 1.18  
+Epi: 212  R: 0       outcome: TIMEOUT      steps: 810   steps_total: 100565 time: 17.92 
+Epi: 213  R: -1      outcome: COLL_WALL    steps: 311   steps_total: 100876 time: 6.83  
+Epi: 214  R: -1      outcome: COLL_WALL    steps: 764   steps_total: 101640 time: 16.78 
+Epi: 215  R: -1      outcome: COLL_WALL    steps: 266   steps_total: 101906 time: 6.17  
+Epi: 216  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 101936 time: 0.70  
+Epi: 217  R: -1      outcome: COLL_WALL    steps: 726   steps_total: 102662 time: 15.53 
+Epi: 218  R: -1      outcome: COLL_WALL    steps: 764   steps_total: 103426 time: 16.65 
+Epi: 219  R: -1      outcome: COLL_WALL    steps: 868   steps_total: 104294 time: 19.20 
+Epi: 220  R: -1      outcome: COLL_WALL    steps: 38    steps_total: 104332 time: 0.84  
+Epi: 221  R: -1      outcome: COLL_WALL    steps: 139   steps_total: 104471 time: 3.02  
+Epi: 222  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 104501 time: 0.64  
+Epi: 223  R: 0       outcome: TIMEOUT      steps: 913   steps_total: 105414 time: 20.17 
+Epi: 224  R: 0       outcome: TIMEOUT      steps: 919   steps_total: 106333 time: 20.46 
+Epi: 225  R: -1      outcome: COLL_WALL    steps: 39    steps_total: 106372 time: 0.92  
+Epi: 226  R: -1      outcome: COLL_WALL    steps: 31    steps_total: 106403 time: 0.69  
+Epi: 227  R: -1      outcome: COLL_WALL    steps: 94    steps_total: 106497 time: 2.08  
+Epi: 228  R: -1      outcome: COLL_WALL    steps: 72    steps_total: 106569 time: 1.52  
+Epi: 229  R: -1      outcome: COLL_WALL    steps: 427   steps_total: 106996 time: 8.92  
+Epi: 230  R: 0       outcome: TIMEOUT      steps: 872   steps_total: 107868 time: 19.12 
+Epi: 231  R: -1      outcome: COLL_WALL    steps: 238   steps_total: 108106 time: 5.20  
+Epi: 232  R: -1      outcome: COLL_WALL    steps: 709   steps_total: 108815 time: 15.42 
+Epi: 233  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 108845 time: 0.67  
+Epi: 234  R: 0       outcome: TIMEOUT      steps: 938   steps_total: 109783 time: 20.19 
+Epi: 235  R: -1      outcome: COLL_WALL    steps: 188   steps_total: 109971 time: 4.11  
+Epi: 236  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 110001 time: 0.64  
+Epi: 237  R: -1      outcome: COLL_WALL    steps: 652   steps_total: 110653 time: 14.37 
+Epi: 238  R: -1      outcome: COLL_WALL    steps: 471   steps_total: 111124 time: 10.16 
+Epi: 239  R: -1      outcome: COLL_WALL    steps: 78    steps_total: 111202 time: 1.60  
+Epi: 240  R: -1      outcome: COLL_WALL    steps: 521   steps_total: 111723 time: 11.50 
+Epi: 241  R: -1      outcome: COLL_WALL    steps: 44    steps_total: 111767 time: 1.00  
+Epi: 242  R: -1      outcome: COLL_WALL    steps: 681   steps_total: 112448 time: 15.27 
+Epi: 243  R: 0       outcome: TIMEOUT      steps: 897   steps_total: 113345 time: 19.37 
+Epi: 244  R: -1      outcome: COLL_WALL    steps: 69    steps_total: 113414 time: 1.41  
+Epi: 245  R: -1      outcome: COLL_WALL    steps: 109   steps_total: 113523 time: 2.35  
+Epi: 246  R: -1      outcome: COLL_WALL    steps: 31    steps_total: 113554 time: 0.65  
+Epi: 247  R: -1      outcome: COLL_WALL    steps: 762   steps_total: 114316 time: 16.08 
+Epi: 248  R: 0       outcome: TIMEOUT      steps: 880   steps_total: 115196 time: 19.17 
+Epi: 249  R: -1      outcome: COLL_WALL    steps: 266   steps_total: 115462 time: 5.92  
+Epi: 250  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 115492 time: 0.67  
+Epi: 251  R: -1      outcome: COLL_WALL    steps: 307   steps_total: 115799 time: 6.64  
+Epi: 252  R: -1      outcome: COLL_WALL    steps: 44    steps_total: 115843 time: 0.98  
+Epi: 253  R: 0       outcome: TIMEOUT      steps: 851   steps_total: 116694 time: 19.17 
+Epi: 254  R: -1      outcome: COLL_WALL    steps: 553   steps_total: 117247 time: 12.15 
+Epi: 255  R: -1      outcome: COLL_WALL    steps: 758   steps_total: 118005 time: 16.29 
+Epi: 256  R: -1      outcome: COLL_WALL    steps: 71    steps_total: 118076 time: 1.51  
+Epi: 257  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 118106 time: 0.63  
+Epi: 258  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 118136 time: 0.65  
+Epi: 259  R: -1      outcome: COLL_WALL    steps: 848   steps_total: 118984 time: 18.75 
+Epi: 260  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 119014 time: 0.66  
+Epi: 261  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 119044 time: 0.68  
+Epi: 262  R: -1      outcome: COLL_WALL    steps: 755   steps_total: 119799 time: 16.42 
+Epi: 263  R: -1      outcome: COLL_WALL    steps: 706   steps_total: 120505 time: 15.33 
+Epi: 264  R: -1      outcome: COLL_WALL    steps: 40    steps_total: 120545 time: 0.86  
+Epi: 265  R: -1      outcome: COLL_WALL    steps: 365   steps_total: 120910 time: 7.87  
+Epi: 266  R: -1      outcome: COLL_WALL    steps: 34    steps_total: 120944 time: 0.76  
+Epi: 267  R: -1      outcome: COLL_WALL    steps: 780   steps_total: 121724 time: 16.99 
+Epi: 268  R: 0       outcome: TIMEOUT      steps: 936   steps_total: 122660 time: 20.48 
+Epi: 269  R: -1      outcome: COLL_WALL    steps: 252   steps_total: 122912 time: 5.65  
+Epi: 270  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 122942 time: 0.70  
+Epi: 271  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 122972 time: 0.67  
+Epi: 272  R: -1      outcome: COLL_WALL    steps: 558   steps_total: 123530 time: 12.43 
+Epi: 273  R: 0       outcome: TIMEOUT      steps: 885   steps_total: 124415 time: 19.62 
+Epi: 274  R: -1      outcome: COLL_WALL    steps: 259   steps_total: 124674 time: 5.59  
+Epi: 275  R: -1      outcome: COLL_WALL    steps: 551   steps_total: 125225 time: 11.93 
+Epi: 276  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 125255 time: 0.67  
+Epi: 277  R: -1      outcome: COLL_WALL    steps: 44    steps_total: 125299 time: 0.98  
+Epi: 278  R: -1      outcome: COLL_WALL    steps: 47    steps_total: 125346 time: 1.05  
+Epi: 279  R: 0       outcome: TIMEOUT      steps: 914   steps_total: 126260 time: 19.92 
+Epi: 280  R: -1      outcome: COLL_WALL    steps: 246   steps_total: 126506 time: 5.50  
+Epi: 281  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 126536 time: 0.67  
+Epi: 282  R: -1      outcome: COLL_WALL    steps: 734   steps_total: 127270 time: 15.93 
+Epi: 283  R: -1      outcome: COLL_WALL    steps: 280   steps_total: 127550 time: 6.26  
+Epi: 284  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 127580 time: 0.68  
+Epi: 285  R: 0       outcome: TIMEOUT      steps: 943   steps_total: 128523 time: 20.55 
+Epi: 286  R: -1      outcome: COLL_WALL    steps: 689   steps_total: 129212 time: 15.00 
+Epi: 287  R: -1      outcome: COLL_WALL    steps: 750   steps_total: 129962 time: 16.28 
+Epi: 288  R: -1      outcome: COLL_WALL    steps: 66    steps_total: 130028 time: 1.48  
+Epi: 289  R: -1      outcome: COLL_WALL    steps: 125   steps_total: 130153 time: 2.72  
+Epi: 290  R: -1      outcome: COLL_WALL    steps: 753   steps_total: 130906 time: 16.05 
+Epi: 291  R: 0       outcome: TIMEOUT      steps: 890   steps_total: 131796 time: 19.72 
+Epi: 292  R: -1      outcome: COLL_WALL    steps: 255   steps_total: 132051 time: 5.60  
+Epi: 293  R: -1      outcome: COLL_WALL    steps: 38    steps_total: 132089 time: 0.82  
+Epi: 294  R: -1      outcome: COLL_WALL    steps: 76    steps_total: 132165 time: 1.58  
+Epi: 295  R: -1      outcome: COLL_WALL    steps: 95    steps_total: 132260 time: 1.92  
+Epi: 296  R: -1      outcome: COLL_WALL    steps: 419   steps_total: 132679 time: 9.20  
+Epi: 297  R: 0       outcome: TIMEOUT      steps: 848   steps_total: 133527 time: 18.77 
+Epi: 298  R: -1      outcome: COLL_WALL    steps: 209   steps_total: 133736 time: 4.80  
+Epi: 299  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 133766 time: 0.67  
+Epi: 300  R: -1      outcome: COLL_WALL    steps: 30    steps_total: 133796 time: 0.67  
+saving data for episode: 300, location: /home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/fond-filly/ddpg_12_stage_9
+saving actor model for episode: 300
+saving target_actor model for episode: 300
+saving critic model for episode: 300
+saving target_critic model for episode: 300

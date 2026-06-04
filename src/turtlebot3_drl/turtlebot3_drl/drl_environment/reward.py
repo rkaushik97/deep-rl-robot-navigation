@@ -1,12 +1,21 @@
-from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM
+from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM, PROGRESS_K
 
 goal_dist_initial = 0
+prev_goal_dist = 0      # for potential-based progress shaping (reward_P); reset per episode
 
 reward_function_internal = None
 
-# Last-call component breakdown for the debug publisher. The env reads this
-# after get_reward() — keeps get_reward()'s scalar return type intact.
+# Last-call component breakdown. The env reads this after get_reward() and ships
+# it (in REWARD_COMPONENT_NAMES order) so the learner can report which shaping
+# term dominates — keeps get_reward()'s scalar return type intact.
 last_components = {}
+
+# Canonical order shared by env -> actor -> learner -> metrics file.
+REWARD_COMPONENT_NAMES = ['r_yaw', 'r_distance', 'r_obstacle', 'r_vlinear', 'r_vangular', 'r_step', 'r_terminal']
+
+
+def get_last_components_ordered():
+    return [float(last_components.get(k, 0.0)) for k in REWARD_COMPONENT_NAMES]
 
 def get_reward(succeed, action_linear, action_angular, distance_to_goal, goal_angle, min_obstacle_distance):
     # SAC needs |reward| ~ O(10s) so the entropy term in the actor loss is
@@ -55,12 +64,98 @@ def get_reward_A(succeed, action_linear, action_angular, goal_dist, goal_angle, 
         })
         return float(reward)
 
+def get_reward_B(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # SPARSE reward: no directional shaping. The network figures out *how* to
+        # navigate from only (a) a per-step time penalty and (b) a terminal
+        # goal/collision signal. Relies on ENABLE_DYNAMIC_GOALS so the goal is
+        # reachable by chance early on (close-ring curriculum) -> the agent
+        # actually sees the +success signal to learn from.
+        #
+        # Why a step penalty and not pure terminal-only: without it, "freeze /
+        # spin in place" is a safe local optimum (reward 0 beats risking -collision).
+        # The -1/step makes idling cost ~ -timeout_steps, so the ordering is
+        # success (>0) >> timeout (mildly negative) > collision (very negative),
+        # which forces goal-seeking instead of bleeding out.
+        r_step = -1.0
+
+        terminal_bonus = 0.0
+        if succeed == SUCCESS:
+            terminal_bonus = 2500.0
+        elif succeed == COLLISION_OBSTACLE or succeed == COLLISION_WALL:
+            terminal_bonus = -2000.0
+
+        reward = r_step + terminal_bonus
+
+        last_components.clear()
+        last_components.update({
+            'r_yaw': 0.0,
+            'r_distance': 0.0,
+            'r_obstacle': 0.0,
+            'r_vlinear': 0.0,
+            'r_vangular': 0.0,
+            'r_step': float(r_step),
+            'r_terminal': float(terminal_bonus),
+        })
+        return float(reward)
+
+def get_reward_S(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # CLEAN SPARSE reward — the unhackable baseline. Only signal: +1 reaching the
+        # goal, -1 for any collision, 0 every other step. Time pressure comes from the
+        # discount (gamma<1): reaching sooner is worth more, and "freeze -> timeout"
+        # returns 0, which loses to any real success. Q stays in [-1, 1] -> extremely
+        # well conditioned (vs the +/-2500 that blew Q up). If the agent learns to
+        # navigate under THIS, the algorithm genuinely works; only then add dense terms.
+        terminal = 0.0
+        if succeed == SUCCESS:
+            terminal = 1.0
+        elif succeed == COLLISION_OBSTACLE or succeed == COLLISION_WALL:
+            terminal = -1.0
+
+        last_components.clear()
+        last_components.update({
+            'r_yaw': 0.0, 'r_distance': 0.0, 'r_obstacle': 0.0,
+            'r_vlinear': 0.0, 'r_vangular': 0.0, 'r_step': 0.0,
+            'r_terminal': float(terminal),
+        })
+        return float(terminal)
+
+def get_reward_P(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # SPARSE + POTENTIAL-BASED PROGRESS (exp002). One addition on top of the clean
+        # sparse baseline: a dense reward for *closing distance* to the goal.
+        #   r_progress = K * (prev_dist - curr_dist)   (clipped to +/-1)
+        # This is potential-based shaping (Phi = -distance; Ng et al. 1999): it is
+        # PROVABLY policy-invariant, so it speeds learning without changing the optimal
+        # policy and CANNOT be reward-hacked (unlike r_vlinear). It supplies the gradient
+        # toward the goal that pure sparse lacked (exp001 = 0% success / never reached a
+        # goal). Crashing ends the episode early -> forfeits future progress reward, so
+        # collision-avoidance is incentivised implicitly; standing still earns 0, so there
+        # is no survive-to-timeout trap.
+        global prev_goal_dist
+        r_progress = max(-1.0, min(1.0, PROGRESS_K * (prev_goal_dist - goal_dist)))
+        prev_goal_dist = goal_dist
+
+        terminal = 0.0
+        if succeed == SUCCESS:
+            terminal = 1.0
+        elif succeed == COLLISION_OBSTACLE or succeed == COLLISION_WALL:
+            terminal = -1.0
+
+        reward = r_progress + terminal
+        last_components.clear()
+        last_components.update({
+            'r_yaw': 0.0, 'r_distance': float(r_progress), 'r_obstacle': 0.0,
+            'r_vlinear': 0.0, 'r_vangular': 0.0, 'r_step': 0.0,
+            'r_terminal': float(terminal),
+        })
+        return float(reward)
+
 # Define your own reward function by defining a new function: 'get_reward_X'
 # Replace X with your reward function name and configure it in settings.py
 
 def reward_initalize(init_distance_to_goal):
-    global goal_dist_initial
+    global goal_dist_initial, prev_goal_dist
     goal_dist_initial = init_distance_to_goal
+    prev_goal_dist = init_distance_to_goal
 
 function_name = "get_reward_" + REWARD_FUNCTION
 reward_function_internal = globals()[function_name]
