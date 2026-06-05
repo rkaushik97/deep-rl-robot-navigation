@@ -21,7 +21,8 @@ class OUNoise(object):
         return self.state
 
     def get_noise(self, t=0):
-        ou_state = self.evolve_state()
-        decaying = float(float(t) / self.decay_period)
-        self.sigma = max(self.sigma - (self.max_sigma - self.min_sigma) * min(1.0, decaying), self.min_sigma)
-        return ou_state
+        # Linear anneal: sigma = max at t=0 -> min at t>=decay_period (t is the GLOBAL step).
+        # (Was a cumulative per-call subtraction that collapsed to min in ~6 steps.)
+        frac = min(1.0, max(0.0, float(t)) / self.decay_period)
+        self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * frac
+        return self.evolve_state()

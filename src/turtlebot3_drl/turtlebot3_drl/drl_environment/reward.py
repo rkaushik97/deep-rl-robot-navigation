@@ -1,8 +1,10 @@
-from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM, PROGRESS_K, OBSTACLE_K, OBSTACLE_SAFE, SPEED_LINEAR_MAX
+from ..common.settings import REWARD_FUNCTION, REWARD_SCALE, COLLISION_OBSTACLE, COLLISION_WALL, TUMBLE, SUCCESS, TIMEOUT, RESULTS_NUM, PROGRESS_K, OBSTACLE_K, OBSTACLE_SAFE, SPEED_LINEAR_MAX, SPEED_ANGULAR_MAX
 
 goal_dist_initial = 0
 prev_goal_dist = 0      # for potential-based progress shaping (reward_P); reset per episode
 prev_min_obs = 99.0     # for approach-aware obstacle penalty (reward_O); reset per episode
+prev_action_linear = 0.0   # for control-smoothness penalty (reward_VH); reset per episode
+prev_action_angular = 0.0  # for control-smoothness penalty (reward_VH); reset per episode
 
 reward_function_internal = None
 
@@ -221,14 +223,52 @@ def get_reward_V(succeed, action_linear, action_angular, goal_dist, goal_angle, 
         })
         return float(reward)
 
+def get_reward_VH(succeed, action_linear, action_angular, goal_dist, goal_angle, min_obstacle_dist):
+        # exp007: progress + speed-modulated obstacle penalty (reward_V) + GATED heading +
+        # control smoothness. Targets the dominant remaining failure (mid-journey clip-while-
+        # navigating, ~72-80% of walls in exp005/exp006) without re-introducing the over-caution
+        # collapse: heading is PENALTY-ONLY and GATED to open space (>= OBSTACLE_SAFE), so it
+        # never reinforces driving straight into a wall; smoothness damps the lin=-1 reversing
+        # over-caution seen in exp006's clean eval. action_linear/angular are physical units.
+        global prev_goal_dist, prev_action_linear, prev_action_angular
+        r_progress = max(-1.0, min(1.0, PROGRESS_K * (prev_goal_dist - goal_dist)))
+        prev_goal_dist = goal_dist
+
+        r_speed = 0.0
+        if min_obstacle_dist < OBSTACLE_SAFE:
+            speed = max(0.0, action_linear) / SPEED_LINEAR_MAX
+            prox = (OBSTACLE_SAFE - min_obstacle_dist) / OBSTACLE_SAFE
+            r_speed = -OBSTACLE_K * speed * prox
+
+        r_heading = 0.0
+        if min_obstacle_dist >= OBSTACLE_SAFE:            # gated: only steer toward goal in open space
+            r_heading = -0.10 * (abs(goal_angle) / 3.14159265)
+
+        d_ang = abs(action_angular - prev_action_angular) / (2.0 * SPEED_ANGULAR_MAX)
+        d_lin = abs(action_linear - prev_action_linear) / SPEED_LINEAR_MAX
+        r_smooth = -0.10 * (d_ang + 0.25 * d_lin)
+        prev_action_linear = action_linear
+        prev_action_angular = action_angular
+
+        terminal = 1.0 if succeed == SUCCESS else (-1.0 if succeed in (COLLISION_OBSTACLE, COLLISION_WALL) else 0.0)
+        reward = r_progress + r_speed + r_heading + r_smooth + terminal
+        last_components.clear()
+        last_components.update({
+            'r_yaw': float(r_heading), 'r_distance': float(r_progress), 'r_obstacle': float(r_speed),
+            'r_vlinear': float(r_smooth), 'r_vangular': 0.0, 'r_step': 0.0, 'r_terminal': float(terminal),
+        })
+        return float(reward)
+
 # Define your own reward function by defining a new function: 'get_reward_X'
 # Replace X with your reward function name and configure it in settings.py
 
 def reward_initalize(init_distance_to_goal):
-    global goal_dist_initial, prev_goal_dist, prev_min_obs
+    global goal_dist_initial, prev_goal_dist, prev_min_obs, prev_action_linear, prev_action_angular
     goal_dist_initial = init_distance_to_goal
     prev_goal_dist = init_distance_to_goal
     prev_min_obs = 99.0
+    prev_action_linear = 0.0
+    prev_action_angular = 0.0
 
 function_name = "get_reward_" + REWARD_FUNCTION
 reward_function_internal = globals()[function_name]

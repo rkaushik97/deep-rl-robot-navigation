@@ -13,7 +13,7 @@ import torch.nn.functional as torchf
 
 from turtlebot3_drl.drl_environment.reward import REWARD_FUNCTION
 from ..common.settings import ENABLE_BACKWARD, ENABLE_STACKING, ACTION_SIZE, HIDDEN_SIZE, BATCH_SIZE, BUFFER_SIZE, \
-    DISCOUNT_FACTOR, LEARNING_RATE, TAU, STEP_TIME, EPSILON_DECAY, EPSILON_MINIMUM, STACK_DEPTH, FRAME_SKIP
+    DISCOUNT_FACTOR, LEARNING_RATE, TAU, STEP_TIME, EPSILON_DECAY, EPSILON_MINIMUM, STACK_DEPTH, FRAME_SKIP, N_STEP
 from ..drl_environment.drl_environment import NUM_SCAN_SAMPLES
 
 
@@ -35,6 +35,9 @@ class OffPolicyAgent(ABC):
         self.batch_size = BATCH_SIZE
         self.buffer_size = BUFFER_SIZE
         self.discount_factor = DISCOUNT_FACTOR
+        # N-step: bootstrap discount is gamma**n (computed once; n=1 -> gamma == 1-step).
+        self.n_step = N_STEP
+        self.nstep_discount = self.discount_factor ** self.n_step
         self.learning_rate = LEARNING_RATE
         self.tau = TAU
 
@@ -70,18 +73,28 @@ class OffPolicyAgent(ABC):
         pass
 
     def _train(self, replaybuffer):
-        # Pull a uniform-random minibatch and move it to the GPU once.
-        sample_s, sample_a, sample_r, sample_ns, sample_d = replaybuffer.sample(self.batch_size)
+        # Pull a minibatch and move it to the GPU once. With PER the buffer also returns
+        # the sampled indices + importance-sampling weights (used to de-bias the loss),
+        # and we write the fresh |TD error| back as the new priorities.
+        per = hasattr(replaybuffer, 'update_priorities')
+        if per:
+            sample_s, sample_a, sample_r, sample_ns, sample_d, idxs, is_w = replaybuffer.sample(self.batch_size)
+            weights = torch.from_numpy(is_w).to(self.device).view(-1, 1)
+        else:
+            sample_s, sample_a, sample_r, sample_ns, sample_d = replaybuffer.sample(self.batch_size)
+            weights = None
         sample_s = torch.from_numpy(sample_s).to(self.device)
         sample_a = torch.from_numpy(sample_a).to(self.device)
         sample_r = torch.from_numpy(sample_r).to(self.device)
         sample_ns = torch.from_numpy(sample_ns).to(self.device)
         sample_d = torch.from_numpy(sample_d).to(self.device)
-        result = self.train(sample_s, sample_a, sample_r, sample_ns, sample_d)
+        result = self.train(sample_s, sample_a, sample_r, sample_ns, sample_d, weights)
+        if per:
+            replaybuffer.update_priorities(idxs, result[2])   # result[2] = per-sample |TD error|
         self.iteration += 1
         if self.epsilon and self.epsilon > self.epsilon_minimum:
             self.epsilon *= self.epsilon_decay
-        return result
+        return result[:2]
 
     def create_network(self, type, name):
         network = type(name, self.input_size, self.action_size, self.hidden_size).to(self.device)

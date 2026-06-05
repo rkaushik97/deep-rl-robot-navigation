@@ -10,9 +10,10 @@ from rclpy.node import Node
 from turtlebot3_msgs.srv import DrlStep, Goal
 from ros_gz_interfaces.srv import ControlWorld
 from turtlebot3_drl.common import utilities as util
-from turtlebot3_drl.drl_agent.ddpg import DDPG
-from turtlebot3_drl.common.settings import SUCCESS, COLLISION_WALL, LIDAR_DISTANCE_CAP
+from turtlebot3_drl.algorithms.ddpg.ddpg import DDPG
+from turtlebot3_drl.common.settings import SUCCESS, COLLISION_WALL, LIDAR_DISTANCE_CAP, ENABLE_STACKING, STACK_DEPTH, FRAME_SKIP
 from turtlebot3_drl.drl_environment.drl_environment import NUM_SCAN_SAMPLES, MAX_GOAL_DISTANCE
+from turtlebot3_drl.drl_agent.drl_agent import FrameStacker
 
 
 def parse_state(s):
@@ -24,11 +25,17 @@ def parse_state(s):
 
 
 class Replay(Node):
-    def __init__(self, ckpt, n_eps):
+    def __init__(self, ckpt, n_eps, algo='ddpg'):
         super().__init__('replay_analyze')
         self.real_robot = 0
         self.device = torch.device('cpu')
-        self.model = DDPG(self.device, 1)
+        # DDPG/TD3 share the deterministic Actor (fa1/fa2/fa3); SAC uses a GaussianActor.
+        # get_action(state, False, step) is deterministic for all three (SAC -> tanh(mu)).
+        if algo == 'sac':
+            from turtlebot3_drl.algorithms.sac.sac import SAC
+            self.model = SAC(self.device, 1)
+        else:
+            self.model = DDPG(self.device, 1)
         self.model.actor.load_state_dict(torch.load(ckpt, map_location='cpu'))
         self.model.actor.eval()
         self.step_comm_client = self.create_client(DrlStep, 'step_comm')
@@ -39,18 +46,22 @@ class Replay(Node):
     def run(self, n_eps):
         util.pause_simulation(self, 0)
         rec = []
+        stacker = FrameStacker(STACK_DEPTH, FRAME_SKIP) if ENABLE_STACKING else None
         for ep in range(n_eps):
             util.wait_new_goal(self)
-            state = util.init_episode(self)
+            raw = util.init_episode(self)
+            state = stacker.reset(raw) if stacker else raw   # stacked 132-dim if DRL_STACKING=1
             ap = [0.0, 0.0]
             util.unpause_simulation(self, 0); time.sleep(0.5)
             done = False; step = 0; outcome = 0; last = (0, 0, 0, 0, 0)
             while not done:
                 action = self.model.get_action(state, False, step)   # greedy, no noise
                 ns, _, done, outcome, _, _ = util.step(self, action, ap)
-                gd, ga, mo = parse_state(ns)
+                gd, ga, mo = parse_state(ns)                          # parse the RAW frame for cause classification
                 last = (gd, ga, mo, action[0], action[1])
-                ap = copy.deepcopy(action); state = copy.deepcopy(ns); step += 1
+                ap = copy.deepcopy(action)
+                state = stacker.push(ns) if stacker else copy.deepcopy(ns)
+                step += 1
                 time.sleep(self.model.step_time)
             util.pause_simulation(self, 0)
             rec.append((outcome, step, last))
@@ -89,8 +100,21 @@ class Replay(Node):
 
 
 def main():
+    import os
     ck = sys.argv[1]; n = int(sys.argv[2]) if len(sys.argv) > 2 else 40
-    rclpy.init(); Replay(ck, n); rclpy.shutdown()
+    algo = (sys.argv[3] if len(sys.argv) > 3 else os.environ.get('DRL_EVAL_ALGO', 'ddpg')).lower()
+    # Guard: deterministic eval MUST run on the fixed benchmark (DYNAMIC_GOALS=False).
+    # With the curriculum ON the goal difficulty adapts to the policy -> moving, self-
+    # penalizing benchmark (reads ~20-25pp too low). Use scripts/clean_eval.sh which sets it.
+    from turtlebot3_drl.common.settings import ENABLE_DYNAMIC_GOALS
+    if ENABLE_DYNAMIC_GOALS:
+        print("\n*** WARNING: ENABLE_DYNAMIC_GOALS=True — eval is on the ADAPTING curriculum, "
+              "NOT the fixed benchmark. Numbers will be too low. Launch the env with "
+              "DRL_DYNAMIC_GOALS=False (use scripts/clean_eval.sh). ***\n", flush=True)
+    else:
+        print("[clean_eval] DYNAMIC_GOALS=False — fixed benchmark goals (correct).", flush=True)
+    print(f"[clean_eval] algorithm = {algo}", flush=True)
+    rclpy.init(); Replay(ck, n, algo); rclpy.shutdown()
 
 
 if __name__ == '__main__':

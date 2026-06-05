@@ -22,6 +22,7 @@ import os
 import json
 import sys
 import copy
+from collections import deque
 from numpy.core.numeric import Infinity
 
 from geometry_msgs.msg import Pose, Twist
@@ -85,6 +86,11 @@ class DRLEnvironment(Node):
         self.obstacle_distance = LIDAR_DISTANCE_CAP
 
         self.difficulty_radius = CURRICULUM_MIN_RADIUS   # start at the (non-trivial) floor
+        # exp014: optional curriculum HYSTERESIS (env DRL_HYSTERESIS=1). Instead of a noisy
+        # per-episode multiplicative ramp, adjust difficulty in 0.25 steps only when the
+        # windowed (last-20) success rate crosses 0.70 (up) / 0.40 (down), then reset window.
+        self.use_hysteresis = os.environ.get('DRL_HYSTERESIS', '0') == '1'
+        self.success_window = deque(maxlen=20)
         self.local_step = 0
         self.time_sec = 0
 
@@ -212,13 +218,23 @@ class DRLEnvironment(Node):
         # goal real navigation; asymmetric ramp (faster up, slower down) drives difficulty
         # UP with success toward the full benchmark instead of collapsing to the floor.
         req.radius = float(numpy.clip(self.difficulty_radius, CURRICULUM_MIN_RADIUS, CURRICULUM_MAX_RADIUS))
+        if self.use_hysteresis:
+            self.success_window.append(1 if success else 0)
+            if len(self.success_window) >= 10:
+                ws = sum(self.success_window) / len(self.success_window)
+                if ws > 0.70:
+                    self.difficulty_radius = min(self.difficulty_radius + 0.25, CURRICULUM_MAX_RADIUS); self.success_window.clear()
+                elif ws < 0.40:
+                    self.difficulty_radius = max(self.difficulty_radius - 0.25, CURRICULUM_MIN_RADIUS); self.success_window.clear()
         if success:
-            self.difficulty_radius = min(self.difficulty_radius * 1.02, CURRICULUM_MAX_RADIUS)
+            if not self.use_hysteresis:
+                self.difficulty_radius = min(self.difficulty_radius * 1.02, CURRICULUM_MAX_RADIUS)
             while not self.task_succeed_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('success service not available, waiting again...')
             self.task_succeed_client.call_async(req)
         else:
-            self.difficulty_radius = max(self.difficulty_radius * 0.99, CURRICULUM_MIN_RADIUS)
+            if not self.use_hysteresis:
+                self.difficulty_radius = max(self.difficulty_radius * 0.99, CURRICULUM_MIN_RADIUS)
             while not self.task_fail_client.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('fail service not available, waiting again...')
             self.task_fail_client.call_async(req)
