@@ -1,0 +1,3 @@
+td3 examples/eval_td3_1277772_stage9 ep2200
+episodes=100 success=69 (69%) wall=9 obstacle=0 timeout=22 tumble=0
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/eval_td3_1277772_stage9/_test_stage9_eps2200_20260606-121421.txt

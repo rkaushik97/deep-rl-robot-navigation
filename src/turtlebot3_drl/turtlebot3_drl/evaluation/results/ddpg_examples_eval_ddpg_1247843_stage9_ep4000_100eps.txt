@@ -1,0 +1,3 @@
+ddpg examples/eval_ddpg_1247843_stage9 ep4000
+episodes=100 success=89 (89%) wall=9 obstacle=0 timeout=2 tumble=0
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/eval_ddpg_1247843_stage9/_test_stage9_eps4000_20260606-112920.txt
