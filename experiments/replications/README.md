@@ -4,24 +4,40 @@ Faithful replications of the reference repo's DDPG and TD3, trained from scratch
 exact reference config and scored on the **same benchmark** (`test_agent`, 100 random-goal
 deterministic episodes). SAC is still training and is not included here yet.
 
-## Result (test_agent, 100 episodes)
+## Replicated results
 
-| Algorithm | Our checkpoint | **Our test** | Reference test | At episode |
-|-----------|----------------|--------------|----------------|------------|
-| DDPG | ep4000 | **89%** | 84% | 4000 (ref: 8000) |
-| TD3  | ep2700 | **80%** | 74% | 2700 (ref: 7400) |
+| Algorithm | Train MA100 (peak) | Val-best (40-ep, greedy) | **Test_agent (100 eps)** | Reference test | At episode |
+|-----------|--------------------|--------------------------|--------------------------|----------------|------------|
+| **DDPG** | 91% | 95% @ ep4000 | **89%** | 84% | 4000 (ref 8000) |
+| **TD3**  | 82% | 77.5% @ ep2700 | **80%** | 74% | 2700 (ref 7400) |
 
-Both **match and modestly beat** the reference (+5pp / +6pp; ~1–1.3σ at n=100), and reach it at
-roughly half the reference's episode count. Numbers are sampling-noisy (±~3.5–4.6pp at n=100).
+Both **match and modestly beat** the reference on the test set (+5pp / +6pp; ~1–1.3σ at n=100),
+reached at roughly half the reference's episode count. The three columns measure different things:
+the train MA100 is the exploring policy (noisy, exploration-inflated), the val is the greedy
+policy over 40 episodes (selection-biased upward, since `best.pt` is chosen to maximize it), and
+**`test_agent` is the only apples-to-apples number** vs the reference. Numbers carry ±~3.5–4.6pp
+sampling noise at n=100.
+
+## Training curves vs reference
+
+**DDPG**
+
+![DDPG training vs reference](ddpg/curve_vs_reference.png)
+
+**TD3**
+
+![TD3 training vs reference](td3/curve_vs_reference.png)
+
+(Side-by-side with SAC: `training_vs_reference.png`.)
 
 ## What's here
 Per algorithm (`ddpg/`, `td3/`):
 - `_metrics.tsv` — full per-episode training log (MA100 success, losses, reward components).
 - `training.png` — 4-panel training figure (success MA100, val success, losses, reward components).
+- `curve_vs_reference.png` — our training success vs the reference's, at matched episodes.
 - `config.sh` — the frozen reference-exact config used to train.
 - `actor_stage9_episode<E>_best.pt` — the evaluated best actor weights.
 - `test_agent_ep<E>_100eps.txt` — the verified benchmark result.
-- `training_vs_reference.png` — our training curves vs the reference's, at matched episodes.
 
 ## Reproduce
 ```
