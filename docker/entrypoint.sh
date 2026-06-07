@@ -58,6 +58,10 @@ fi
 # Snapshot DRL_* the caller passed in so they survive (and override) config.sh — this is
 # what lets a k8s sweep set DRL_LR/DRL_BATCH_SIZE per pod without editing files.
 declare -A OVERRIDE
+# Drop empty DRL_* knobs first: compose/k8s emit unset overrides as "" (e.g. DRL_BATCH_SIZE=""),
+# but settings.py's os.environ.get(key, default) only falls back to default when the var is UNSET
+# — a set-but-empty value reaches int()/float() and crashes. Unset them so defaults apply.
+while IFS='=' read -r k v; do [ -z "$v" ] && unset "$k"; done < <(env | grep '^DRL_' || true)
 while IFS='=' read -r k v; do [ -n "$k" ] && OVERRIDE["$k"]="$v"; done < <(env | grep '^DRL_' || true)
 
 [ -f "$ALGDIR/config.sh" ] && source "$ALGDIR/config.sh"
