@@ -12,7 +12,7 @@ x-common: &common
   build:
     context: ..
     dockerfile: docker/Dockerfile
-  image: rkaushik97/turtlebot3-drl:${IMAGE_TAG:-cpu}
+  image: kaushik48/turtlebot3-drl:${IMAGE_TAG:-cpu}
   shm_size: "1gb"
   environment: &common-env
     ALGO: ${ALGO:-ddpg}
@@ -38,7 +38,7 @@ services:
   # --- GPU training (needs nvidia-container-toolkit on the host) ---
   train-gpu:
     <<: *common
-    image: rkaushik97/turtlebot3-drl:cuda
+    image: kaushik48/turtlebot3-drl:cuda
     profiles: ["gpu"]
     environment:
       <<: *common-env

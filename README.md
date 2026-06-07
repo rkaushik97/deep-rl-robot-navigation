@@ -51,7 +51,7 @@ Training prints a live line and writes `_metrics.tsv` + `training.png` to its se
 (straight-line/actual path) — see [evaluation](src/turtlebot3_drl/turtlebot3_drl/evaluation).
 
 ## Containerized & distributed training
-The full stack runs in one image (`rkaushik97/turtlebot3-drl:{cpu,cuda}`) for reproducible
+The full stack runs in one image (`kaushik48/turtlebot3-drl:{cpu,cuda}`) for reproducible
 single-host runs and parallel Kubernetes sweeps — see [CONTAINERIZATION.md](CONTAINERIZATION.md).
 
 ## Add a new algorithm

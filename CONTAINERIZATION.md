@@ -9,11 +9,11 @@ Two tags, built from one [`docker/Dockerfile`](docker/Dockerfile):
 
 | Tag | For |
 |-----|-----|
-| `rkaushik97/turtlebot3-drl:cpu`  | CPU (amd64 + arm64); also the only path on Apple-silicon Macs (headless, slow) |
-| `rkaushik97/turtlebot3-drl:cuda` | NVIDIA GPU (needs `nvidia-container-toolkit` on the host) |
+| `kaushik48/turtlebot3-drl:cpu`  | CPU (amd64 + arm64); also the only path on Apple-silicon Macs (headless, slow) |
+| `kaushik48/turtlebot3-drl:cuda` | NVIDIA GPU (needs `nvidia-container-toolkit` on the host) |
 
 ```bash
-docker login -u rkaushik97
+docker login -u kaushik48
 docker/build-and-push.sh build     # build both tags locally
 docker/build-and-push.sh push      # build + push to Docker Hub
 ```
@@ -21,9 +21,9 @@ docker/build-and-push.sh push      # build + push to Docker Hub
 ## Run one container
 ```bash
 # CPU training (DDPG), stop after 2000 episodes
-docker run --rm --shm-size=1g -e ALGO=ddpg -e DRL_MAX_EPISODES=2000 rkaushik97/turtlebot3-drl:cpu
+docker run --rm --shm-size=1g -e ALGO=ddpg -e DRL_MAX_EPISODES=2000 kaushik48/turtlebot3-drl:cpu
 # GPU training (TD3)
-docker run --rm --shm-size=1g --gpus all -e ALGO=td3 rkaushik97/turtlebot3-drl:cuda
+docker run --rm --shm-size=1g --gpus all -e ALGO=td3 kaushik48/turtlebot3-drl:cuda
 ```
 Or with compose (volumes for results baked in):
 ```bash
@@ -38,7 +38,7 @@ Eval also needs `MODEL_DIR`, `EPISODE`, `N_EPS`.
 ## Parallel sweep on Kubernetes (local kind/minikube)
 One pod per config, all writing to one shared volume.
 ```bash
-kind create cluster && kind load docker-image rkaushik97/turtlebot3-drl:cpu   # one-time setup
+kind create cluster && kind load docker-image kaushik48/turtlebot3-drl:cpu   # one-time setup
 k8s/sweep.sh                 # launch the sweep (edit the CONFIGS list inside first)
 kubectl -n drlnav get jobs -l app=drl-sweep -w
 k8s/collect-results.sh ./sweep-results    # pull all results off the cluster

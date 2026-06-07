@@ -2,15 +2,15 @@
 # Build and (optionally) push the TurtleBot3 deep-RL images to Docker Hub.
 #
 #   docker/build-and-push.sh build        # build both tags locally
-#   docker/build-and-push.sh push         # build + push to rkaushik97/turtlebot3-drl
+#   docker/build-and-push.sh push         # build + push to kaushik48/turtlebot3-drl
 #
 # Tags produced:
-#   rkaushik97/turtlebot3-drl:cpu    multi-arch (linux/amd64, linux/arm64) — runs headless
+#   kaushik48/turtlebot3-drl:cpu    multi-arch (linux/amd64, linux/arm64) — runs headless
 #                                    on x86 AND on Apple-silicon (M1/M2) under Docker, CPU-only
-#   rkaushik97/turtlebot3-drl:cuda   linux/amd64, CUDA torch wheel for NVIDIA GPU training
+#   kaushik48/turtlebot3-drl:cuda   linux/amd64, CUDA torch wheel for NVIDIA GPU training
 set -euo pipefail
 
-REPO=${REPO:-rkaushik97/turtlebot3-drl}
+REPO=${REPO:-kaushik48/turtlebot3-drl}
 CPU_INDEX=https://download.pytorch.org/whl/cpu
 CUDA_INDEX=https://download.pytorch.org/whl/cu124
 CTX="$(cd "$(dirname "$0")/.." && pwd)"   # repo root = build context
@@ -45,4 +45,4 @@ docker buildx build ${PUSH:-$LOAD} --platform linux/amd64 \
   -t "$REPO:cuda" "$CTX"
 
 echo "done: $REPO:cpu  $REPO:cuda  (action=$ACTION)"
-[ "$ACTION" = "push" ] && echo "NOTE: 'docker login' as rkaushik97 must have been run first."
+[ "$ACTION" = "push" ] && echo "NOTE: 'docker login' as kaushik48 must have been run first."

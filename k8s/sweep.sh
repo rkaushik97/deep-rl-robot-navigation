@@ -11,7 +11,7 @@
 set -euo pipefail
 NS=drlnav
 IMAGE_TAG=${IMAGE_TAG:-cpu}
-IMAGE=rkaushik97/turtlebot3-drl:${IMAGE_TAG}
+IMAGE=kaushik48/turtlebot3-drl:${IMAGE_TAG}
 MAX_EPISODES=${DRL_MAX_EPISODES:-2000}
 
 CONFIGS=(

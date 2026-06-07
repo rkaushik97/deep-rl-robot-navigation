@@ -23,7 +23,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: trainer
-          image: rkaushik97/turtlebot3-drl:cpu
+          image: kaushik48/turtlebot3-drl:cpu
           imagePullPolicy: IfNotPresent
           env:
             - name: MODE
