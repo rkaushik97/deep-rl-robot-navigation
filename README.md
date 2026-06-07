@@ -35,10 +35,19 @@ colcon build --symlink-install && source install/setup.bash
 
 ## Train & evaluate
 ```bash
-scripts/train.sh ddpg                          # train (also: td3, sac)
-scripts/eval.sh  ddpg <model_dir> <episode>    # test_agent, 100 episodes
+scripts/train.sh ddpg                          # DDPG (also: td3)
+scripts/train.sh sac reward_v_explore          # SAC, the contribution recipe
+scripts/eval.sh  <algo> <model_dir> <episode>  # test_agent, 100 episodes
 ```
 Training prints a live line and writes `_metrics.tsv` + `training.png` to its session dir.
+
+## Add a new algorithm
+Same pattern SAC followed:
+1. `src/turtlebot3_drl/turtlebot3_drl/algorithms/<name>/<name>.py` — your agent, subclass
+   `OffPolicyAgent` (from `algorithms/base.py`); implement `get_action` and `train`.
+2. Register it in `algorithms/__init__.py` (`REGISTRY`).
+3. Add `<name>/config.sh` (hyperparameters); optional `<name>/experiments/*.sh` for reward/knob variants.
+4. `scripts/train.sh <name>` then `scripts/eval.sh <name> …` — scored on the same benchmark as the rest.
 
 ## Credits
 DDPG, TD3, and the robot/environment settings are adapted from
