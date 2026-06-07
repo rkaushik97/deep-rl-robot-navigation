@@ -232,3 +232,6 @@ __marimo__/
 # Checkpoints/buffers stay ignored via *.pt/*.pkl + model/ above — only the text
 # log + config + analysis get committed.
 !experiments/**/*.log
+/runs/
+/experiments/tmp/
+/experiments/exp[0-9]*/
