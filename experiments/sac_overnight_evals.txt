@@ -1,5 +1,0 @@
-# SAC reward-P overnight test_agent evals (100 eps each), run sac_4_stage_9
-ep1100: SUCCESS 72% (wall 27%, timeout 1%)  [val 75%]
-ep1900: SUCCESS 77% (wall 21%, timeout 0%, tumble 2%)
-ep2400: SUCCESS 72% (wall 27%, timeout 0%)
-ep2900: SUCCESS 71% (wall 25%, timeout 1%)

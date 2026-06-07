@@ -6,3 +6,4 @@ ep2900: SUCCESS 71% (wall 25%, timeout 1%)
 # --- reward V (sparse + progress + speed-modulated obstacle penalty) ---
 ep3400: SUCCESS 66% (wall 33%, timeout 0%)   [latest checkpoint — not best]
 ep3800: SUCCESS 83% (wall 17%, timeout 0%)   [val-best — BEST SAC result, matches reference 82%]
+ep4700: SUCCESS 84% (wall 15%, timeout 0%)   [best — beats reference 82%]
