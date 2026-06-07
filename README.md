@@ -6,6 +6,10 @@ DDPG and TD3 reproduce the reference implementation; SAC is a new from-scratch c
 ![RL pipeline](RL-Pipeline.png)
 *Training pipeline — diagram by [prakash-aryan](https://github.com/prakash-aryan).*
 
+![Agent navigating](media/visual.gif)
+*DDPG navigating stage 9 — left: Gazebo; right: the agent's state, both hidden layers, linear/angular
+action, and accumulated reward. Visualization idea from [tomasvr/turtlebot3_drlnav](https://github.com/tomasvr/turtlebot3_drlnav).*
+
 ## Results (test_agent — 100 random-goal episodes)
 
 | Algorithm | Test | Reference | |
@@ -55,3 +59,5 @@ Same pattern SAC followed:
 ## Credits
 DDPG, TD3, and the robot/environment settings are adapted from
 [prakash-aryan/turtlebot3_deepRL](https://github.com/prakash-aryan/turtlebot3_deepRL).
+The network-activations visualization idea is from
+[tomasvr/turtlebot3_drlnav](https://github.com/tomasvr/turtlebot3_drlnav).
