@@ -27,8 +27,9 @@ collision penalty makes hiding (timeout) safer than committing to a goal. Two re
 SAC's policy is noisy between checkpoints, so use the validation-selected `best.pt`.
 
 ## Files
-`reward_p_explore.sh`, `reward_v_explore.sh` (training configs) · best actor weights (`.pt`) ·
-`_metrics.tsv` / `_metrics_rewardV.tsv` / `training.png` (curves) · `test_agent_evals.txt`.
+`reward_p_explore.sh`, `reward_v_explore.sh` (training configs) · best actor weights
+(`…ep1900` = reward P, `…ep4700` = reward V) · `_metrics_{rewardP,rewardV}.tsv` /
+`training_{rewardP,rewardV}.png` (curves) · `curve_vs_reference.png` · `test_agent_evals.txt`.
 
 ## Reproduce
 ```
