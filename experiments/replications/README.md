@@ -1,8 +1,9 @@
-# Replications — DDPG & TD3 (stage 9)
+# Replications — DDPG, TD3 & SAC (stage 9)
 
-Faithful replications of the reference repo's DDPG and TD3, trained from scratch here with the
-exact reference config and scored on the **same benchmark** (`test_agent`, 100 random-goal
-deterministic episodes). SAC is still training and is not included here yet.
+DDPG and TD3 are faithful replications on the reference's exact config. SAC did **not** replicate
+on the reference reward (it collapsed) and required a reward redesign — see `sac/README.md` for the
+full diagnosis and fix. All scored on the **same benchmark** (`test_agent`, 100 random-goal
+deterministic episodes).
 
 ## Replicated results
 
@@ -10,9 +11,12 @@ deterministic episodes). SAC is still training and is not included here yet.
 |-----------|--------------------|--------------------------|--------------------------|----------------|------------|
 | **DDPG** | 91% | 95% @ ep4000 | **89%** | 84% | 4000 (ref 8000) |
 | **TD3**  | 82% | 77.5% @ ep2700 | **80%** | 74% | 2700 (ref 7400) |
+| **SAC**  | 79% | 85% @ ep2400 | **77%** (reward P) | 82% | 1900 |
 
-Both **match and modestly beat** the reference on the test set (+5pp / +6pp; ~1–1.3σ at n=100),
-reached at roughly half the reference's episode count. The three columns measure different things:
+DDPG and TD3 **match/beat** the reference (+5pp / +6pp). **SAC** lands at **77% test** — *not* on the
+reference's reward A (which collapsed SAC into a 58%-timeout policy), but on a redesigned **reward P**
+(sparse + potential-based progress); it plateaus ~73–77% on a ~25% wall floor, ~5–9pp under the
+reference's 82%. Full story in `sac/README.md`. The three columns measure different things:
 the train MA100 is the exploring policy (noisy, exploration-inflated), the val is the greedy
 policy over 40 episodes (selection-biased upward, since `best.pt` is chosen to maximize it), and
 **`test_agent` is the only apples-to-apples number** vs the reference. Numbers carry ±~3.5–4.6pp
@@ -28,7 +32,9 @@ sampling noise at n=100.
 
 ![TD3 training vs reference](td3/curve_vs_reference.png)
 
-(Side-by-side with SAC: `training_vs_reference.png`.)
+**SAC** (reward P — see `sac/README.md`)
+
+![SAC training vs reference](sac/curve_vs_reference.png)
 
 ## What's here
 Per algorithm (`ddpg/`, `td3/`):
