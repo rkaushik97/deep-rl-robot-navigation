@@ -39,3 +39,7 @@ scripts/train.sh ddpg                          # train (also: td3, sac)
 scripts/eval.sh  ddpg <model_dir> <episode>    # test_agent, 100 episodes
 ```
 Training prints a live line and writes `_metrics.tsv` + `training.png` to its session dir.
+
+## Credits
+DDPG, TD3, and the robot/environment settings are adapted from
+[prakash-aryan/turtlebot3_deepRL](https://github.com/prakash-aryan/turtlebot3_deepRL).
