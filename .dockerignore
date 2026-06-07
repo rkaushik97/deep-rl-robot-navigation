@@ -1,0 +1,14 @@
+# keep the build context small + the image clean — only `src` is COPYed, and these are
+# either rebuilt inside the image or mounted at runtime.
+.git
+build/
+install/
+log/
+media/
+experiments/
+SAC/
+**/__pycache__/
+**/*.pyc
+# trained run artifacts: not needed to build; checkpoints are mounted at runtime
+src/turtlebot3_drl/model/
+src/turtlebot3_drl/turtlebot3_drl/evaluation/results/

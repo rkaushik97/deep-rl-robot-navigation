@@ -47,6 +47,20 @@ scripts/train.sh sac reward_v_explore          # SAC, the contribution recipe
 scripts/eval.sh  <algo> <model_dir> <episode>  # test_agent, 100 episodes
 ```
 Training prints a live line and writes `_metrics.tsv` + `training.png` to its session dir.
+`test_agent` reports **success, collision rate, time-to-goal, and path efficiency**
+(straight-line/actual path) — see [evaluation](src/turtlebot3_drl/turtlebot3_drl/evaluation).
+
+## Containerized & distributed training
+The full stack (ROS 2 Jazzy + Gazebo Harmonic + PyTorch) is packaged into one image, so a
+reproducible run is a single command — no host ROS install.
+```bash
+docker compose -f docker/docker-compose.yml up train            # CPU run (also Apple-silicon, headless)
+docker compose -f docker/docker-compose.yml --profile gpu up train-gpu   # NVIDIA-GPU run
+k8s/sweep.sh                                                     # parallel hyperparameter sweep on k8s
+```
+- **Docker** — `rkaushik97/turtlebot3-drl:{cpu,cuda}`; see [docker/](docker/). CPU tag is
+  multi-arch (amd64+arm64); CUDA tag carries the GPU torch wheel.
+- **Kubernetes** — one pod per config, shared results volume, automated collection; see [k8s/](k8s/).
 
 ## Add a new algorithm
 Same pattern SAC followed:

@@ -240,7 +240,7 @@ class DrlAgent(Node):
                 else:
                     action = self.model.get_action(state, self.training, self.total_steps + step)  # GLOBAL step -> OU sigma decays over training
 
-                next_state, reward, episode_done, outcome, distance_traveled, reward_components = util.step(self, action, action_past)
+                next_state, reward, episode_done, outcome, distance_traveled, reward_components, initial_distance = util.step(self, action, action_past)
                 if self.stacking:
                     next_state = self.frame_stacker.push(next_state)
                 action_past = copy.deepcopy(action)
@@ -286,7 +286,7 @@ class DrlAgent(Node):
             util.pause_simulation(self, self.real_robot)
             self.total_steps += step
             duration = time.perf_counter() - episode_start
-            self.finish_episode(step, duration, outcome, distance_traveled, reward_sum, loss_critic, loss_actor, comp_sums)
+            self.finish_episode(step, duration, outcome, distance_traveled, reward_sum, loss_critic, loss_actor, comp_sums, initial_distance)
 
             # Experiment episode budget (env: DRL_MAX_EPISODES). Clean stop for "train N eps then analyze".
             if MAX_TRAINING_EPISODES and self.training and self.episode >= MAX_TRAINING_EPISODES:
@@ -330,7 +330,7 @@ class DrlAgent(Node):
         self.replay_buffer.add_sample(s0, a0, [R], last_next_state, [done_n])
         queue.popleft()
 
-    def finish_episode(self, step, eps_duration, outcome, dist_traveled, reward_sum, loss_critic, loss_actor, comp_sums=None):
+    def finish_episode(self, step, eps_duration, outcome, dist_traveled, reward_sum, loss_critic, loss_actor, comp_sums=None, initial_distance=0.0):
         if self.total_steps < self.observe_steps:
             print(f"Observe phase: {self.total_steps}/{self.observe_steps} steps")
             return
@@ -340,7 +340,7 @@ class DrlAgent(Node):
         if not self.training:
             print(f"Epi: {self.episode:<5}R: {reward_sum:<8.0f}outcome: {util.translate_outcome(outcome):<13}"
                   f"steps: {step:<6}steps_total: {self.total_steps:<7}time: {eps_duration:<6.2f}")
-            self.logger.update_test_results(step, outcome, dist_traveled, eps_duration, 0)
+            self.logger.update_test_results(step, outcome, dist_traveled, eps_duration, 0, initial_distance)
             return
 
         # Universal harness: record metrics (-> _metrics.tsv) and print the live line w/ MA100.
@@ -397,7 +397,7 @@ class DrlAgent(Node):
             outcome = 0
             while not episode_done:
                 action = self.model.get_action(state, False, step)  # is_training=False -> greedy, no noise
-                next_state, _, episode_done, outcome, _, _ = util.step(self, action, action_past)
+                next_state, _, episode_done, outcome, _, _, _ = util.step(self, action, action_past)
                 if self.stacking:
                     next_state = self.frame_stacker.push(next_state)
                 action_past = copy.deepcopy(action)

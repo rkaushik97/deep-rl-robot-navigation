@@ -1,0 +1,15 @@
+# Shared results volume for all training/eval jobs.
+# storageClassName is left unset -> uses the cluster default (kind: "standard"/local-path,
+# minikube: "standard"). ReadWriteOnce is fine for a single-node local cluster: many pods
+# on the SAME node can mount it, and every job writes to a pod-unique subdir (model/<host>/
+# and uniquely-named result files), so there are no write collisions.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: drl-results
+  namespace: drlnav
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi

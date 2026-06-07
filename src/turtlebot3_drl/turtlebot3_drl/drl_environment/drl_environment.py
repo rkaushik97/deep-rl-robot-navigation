@@ -278,6 +278,7 @@ class DRLEnvironment(Node):
         response.reward = 0.0
         response.done = False
         response.distance_traveled = 0.0
+        response.initial_distance = float(self.initial_distance_to_goal)
         response.reward_components = [0.0] * len(rw.REWARD_COMPONENT_NAMES)
         rw.reward_initalize(self.initial_distance_to_goal)
         return response
@@ -332,6 +333,8 @@ class DRLEnvironment(Node):
             self.debug_pub.publish(msg_str)
         if self.done:
             response.distance_traveled = self.total_distance
+            # straight-line start->goal distance for this episode (for path-efficiency metric)
+            response.initial_distance = float(self.initial_distance_to_goal)
             # Reset variables
             self.succeed = UNKNOWN
             self.total_distance = 0.0

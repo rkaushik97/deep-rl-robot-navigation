@@ -10,6 +10,7 @@ class Logger():
         self.test_distance = []
         self.test_duration = []
         self.test_swerving = []
+        self.test_path_eff = []     # straight-line/actual path ratio, successes only
         self.is_training = training
 
         self.session = session
@@ -30,16 +31,19 @@ class Logger():
         else:
             self.file_log = self.init_testing_log(datetime, session_dir, stage, load_episode)
 
-    def update_test_results(self, step, outcome, distance_traveled, episode_duration, swerving_sum):
+    def update_test_results(self, step, outcome, distance_traveled, episode_duration, swerving_sum, initial_distance=0.0):
         self.test_entry += 1
         self.test_outcome[outcome] += 1
         if outcome == SUCCESS:
             self.test_distance.append(distance_traveled)
             self.test_duration.append(episode_duration)
             self.test_swerving.append(swerving_sum/step)
+            # path efficiency = straight-line start->goal / actual path travelled, in (0, 1].
+            if distance_traveled > 0:
+                self.test_path_eff.append(min(1.0, initial_distance / distance_traveled))
         success_count = self.test_outcome[SUCCESS]
 
-        self.file_log.write(f"{self.test_entry}, {outcome}, {step}, {episode_duration}, {distance_traveled}, {self.test_outcome[SUCCESS]}/{self.test_outcome[COLLISION_WALL]}/{self.test_outcome[COLLISION_OBSTACLE]}/{self.test_outcome[TIMEOUT]}/{self.test_outcome[TUMBLE]}\n")
+        self.file_log.write(f"{self.test_entry}, {outcome}, {step}, {episode_duration}, {distance_traveled}, {initial_distance}, {self.test_outcome[SUCCESS]}/{self.test_outcome[COLLISION_WALL]}/{self.test_outcome[COLLISION_OBSTACLE]}/{self.test_outcome[TIMEOUT]}/{self.test_outcome[TUMBLE]}\n")
         if self.test_entry > 0 and self.test_entry % 100 == 0:
             self.update_comparison_file(self.test_entry, self.test_outcome[SUCCESS] / (self.test_entry / 100), 0)
             self.file_log.write(f"Successes: {self.test_outcome[SUCCESS]} ({self.test_outcome[SUCCESS]/self.test_entry:.2%}), "
@@ -48,9 +52,11 @@ class Logger():
             f"timeouts: {self.test_outcome[TIMEOUT]}, ({self.test_outcome[TIMEOUT]/self.test_entry:.2%}), "
             f"tumbles: {self.test_outcome[TUMBLE]}, ({self.test_outcome[TUMBLE]/self.test_entry:.2%}), ")
             if success_count > 0:
+                path_eff = sum(self.test_path_eff)/len(self.test_path_eff) if self.test_path_eff else 0.0
                 self.file_log.write(f"distance: {sum(self.test_distance)/success_count:.3f}, "
                                     f"swerving: {sum(self.test_swerving)/success_count:.3f}, "
-                                    f"duration: {sum(self.test_duration)/success_count:.3f}\n")
+                                    f"duration: {sum(self.test_duration)/success_count:.3f}, "
+                                    f"path_efficiency: {path_eff:.3f}\n")
         if self.test_entry > 0:
             print(f"Successes: {self.test_outcome[SUCCESS]} ({self.test_outcome[SUCCESS]/self.test_entry:.2%}), "
             f"collision (wall): {self.test_outcome[COLLISION_WALL]} ({self.test_outcome[COLLISION_WALL]/self.test_entry:.2%}), "
@@ -58,9 +64,11 @@ class Logger():
             f"timeouts: {self.test_outcome[TIMEOUT]}, ({self.test_outcome[TIMEOUT]/self.test_entry:.2%}), "
             f"tumbles: {self.test_outcome[TUMBLE]}, ({self.test_outcome[TUMBLE]/self.test_entry:.2%}), ")
             if success_count > 0:
+                path_eff = sum(self.test_path_eff)/len(self.test_path_eff) if self.test_path_eff else 0.0
                 print(f"distance: {sum(self.test_distance)/success_count:.3f}, "
                       f"swerving: {sum(self.test_swerving)/success_count:.3f}, "
-                      f"duration: {sum(self.test_duration)/success_count:.3f}")
+                      f"duration: {sum(self.test_duration)/success_count:.3f}, "
+                      f"path_efficiency: {path_eff:.3f}")
 
 
     def init_training_log(self, datetime, path, stage, model_config):
@@ -82,7 +90,7 @@ class Logger():
 
     def init_testing_log(self, datetime, path, stage, load_episode):
         file_log = open(os.path.join(path, "_test_stage" + stage + "_eps" + str(load_episode) + "_" + datetime + '.txt'), 'w+')
-        file_log.write(f"episode, outcome, step, episode_duration, distance, s/cw/co/t\n")
+        file_log.write(f"episode, outcome, step, episode_duration, distance, initial_distance, s/cw/co/t\n")
         return file_log
 
     def init_comparison_file(self, datetime, path, stage, hyperparameters, algorithm, session, episode):

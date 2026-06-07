@@ -1,0 +1,71 @@
+# Reproducible single-host training / eval.
+#
+#   CPU train:   IMAGE_TAG=cpu  ALGO=ddpg  docker compose -f docker/docker-compose.yml up train
+#   GPU train:   docker compose -f docker/docker-compose.yml --profile gpu up train-gpu
+#   Eval:        MODEL_DIR=/abs/path/to/session EPISODE=8000 \
+#                docker compose -f docker/docker-compose.yml --profile eval up eval
+#
+# Reproducibility: the image is pinned by tag, hyperparameters come from the algo's frozen
+# config.sh inside the image, and any DRL_* set here overrides per-run (recorded in compose).
+# Outputs persist in named volumes (drl-model, drl-results) so they survive container exit.
+x-common: &common
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  image: rkaushik97/turtlebot3-drl:${IMAGE_TAG:-cpu}
+  shm_size: "1gb"
+  environment: &common-env
+    ALGO: ${ALGO:-ddpg}
+    EXP: ${EXP:-}
+    DRL_STAGE: ${DRL_STAGE:-9}
+    # per-run hyperparameter overrides (optional); empty -> use config.sh defaults
+    DRL_LR: ${DRL_LR:-}
+    DRL_BATCH_SIZE: ${DRL_BATCH_SIZE:-}
+    DRL_TAU: ${DRL_TAU:-}
+  volumes:
+    - drl-model:/opt/drlnav/src/turtlebot3_drl/model
+    - drl-results:/opt/drlnav/src/turtlebot3_drl/turtlebot3_drl/evaluation/results
+
+services:
+  # --- CPU training (default; also the arm64 / Apple-silicon headless path) ---
+  train:
+    <<: *common
+    environment:
+      <<: *common-env
+      MODE: train
+      DRL_MAX_EPISODES: ${DRL_MAX_EPISODES:-0}
+
+  # --- GPU training (needs nvidia-container-toolkit on the host) ---
+  train-gpu:
+    <<: *common
+    image: rkaushik97/turtlebot3-drl:cuda
+    profiles: ["gpu"]
+    environment:
+      <<: *common-env
+      MODE: train
+      DRL_MAX_EPISODES: ${DRL_MAX_EPISODES:-0}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # --- evaluation (mounts an external checkpoint dir read-only) ---
+  eval:
+    <<: *common
+    profiles: ["eval"]
+    environment:
+      <<: *common-env
+      MODE: eval
+      MODEL_DIR: /checkpoint
+      EPISODE: ${EPISODE:?eval needs EPISODE}
+      N_EPS: ${N_EPS:-100}
+    volumes:
+      - ${MODEL_DIR:?eval needs MODEL_DIR}:/checkpoint:ro
+      - drl-results:/opt/drlnav/src/turtlebot3_drl/turtlebot3_drl/evaluation/results
+
+volumes:
+  drl-model:
+  drl-results:
