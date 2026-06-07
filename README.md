@@ -51,16 +51,8 @@ Training prints a live line and writes `_metrics.tsv` + `training.png` to its se
 (straight-line/actual path) — see [evaluation](src/turtlebot3_drl/turtlebot3_drl/evaluation).
 
 ## Containerized & distributed training
-The full stack (ROS 2 Jazzy + Gazebo Harmonic + PyTorch) is packaged into one image, so a
-reproducible run is a single command — no host ROS install.
-```bash
-docker compose -f docker/docker-compose.yml up train            # CPU run (also Apple-silicon, headless)
-docker compose -f docker/docker-compose.yml --profile gpu up train-gpu   # NVIDIA-GPU run
-k8s/sweep.sh                                                     # parallel hyperparameter sweep on k8s
-```
-- **Docker** — `rkaushik97/turtlebot3-drl:{cpu,cuda}`; see [docker/](docker/). CPU tag is
-  multi-arch (amd64+arm64); CUDA tag carries the GPU torch wheel.
-- **Kubernetes** — one pod per config, shared results volume, automated collection; see [k8s/](k8s/).
+The full stack runs in one image (`rkaushik97/turtlebot3-drl:{cpu,cuda}`) for reproducible
+single-host runs and parallel Kubernetes sweeps — see [CONTAINERIZATION.md](CONTAINERIZATION.md).
 
 ## Add a new algorithm
 Same pattern SAC followed:
