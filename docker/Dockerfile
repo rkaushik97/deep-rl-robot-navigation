@@ -35,13 +35,17 @@ ENV WS=/opt/drlnav
 WORKDIR ${WS}
 COPY src ./src
 
-# resolve ROS deps (ros_gz / gz-harmonic vendor pkgs, turtlebot3_description, ...) then build
+# resolve ROS deps (ros_gz / gz-harmonic vendor pkgs, turtlebot3_description, ...)
 RUN . /opt/ros/jazzy/setup.sh \
     && (rosdep init 2>/dev/null || true) && rosdep update \
     && apt-get update \
     && rosdep install --from-paths src --ignore-src -r -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && colcon build --symlink-install
+    && rm -rf /var/lib/apt/lists/*
+
+# build the workspace in a FRESH shell so it sources the env hooks that the gz-*-vendor
+# packages installed above (otherwise CMake can't find gz-sim8 — the deps weren't on the
+# prefix path when the earlier RUN sourced setup.sh).
+RUN . /opt/ros/jazzy/setup.sh && colcon build --symlink-install
 
 # --- entrypoint + helpers -------------------------------------------------------------
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh

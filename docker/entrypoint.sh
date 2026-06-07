@@ -18,7 +18,8 @@
 #   MODEL_DIR     path to a session dir holding actor_stage<stage>_episode<EP>.pt (mounted)
 #   EPISODE       checkpoint episode to load
 #   N_EPS         number of eval episodes                     (default: 100)
-set -euo pipefail
+# NOTE: no `set -u` — ROS/ament setup scripts reference unbound vars (AMENT_TRACE_SETUP_FILES).
+set -eo pipefail
 
 BASE=${DRLNAV_BASE_PATH:-/opt/drlnav}
 ALGO=${ALGO:-ddpg}
@@ -36,7 +37,10 @@ echo "$STAGE" > /tmp/drlnav_current_stage.txt
 export ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-$(( ($$ % 100) + 1 ))}
 export GZ_PARTITION=${GZ_PARTITION:-drl_${MODE}_${ALGO}_$$}
 
-# ---- threading ----
+# ---- threading + unbuffered stdout ----
+# PYTHONUNBUFFERED so the trainer's live line streams to `docker logs` / `kubectl logs`
+# (Python block-buffers stdout when it isn't a TTY).
+export PYTHONUNBUFFERED=1
 NPROC=$(nproc); export OMP_NUM_THREADS=$NPROC MKL_NUM_THREADS=$NPROC OPENBLAS_NUM_THREADS=$NPROC
 
 # ---- headless software rendering ----
