@@ -3,7 +3,7 @@
 Deep RL for TurtleBot3 goal-navigation among 6 moving obstacles (ROS 2 + Gazebo, stage 9).
 DDPG and TD3 reproduce the reference implementation; SAC is a new from-scratch contribution.
 
-![RL pipeline](RL-Pipeline.png)
+![RL pipeline](media/RL-Pipeline.png)
 *Training pipeline — diagram by [prakash-aryan](https://github.com/prakash-aryan).*
 
 ![Agent navigating](media/visual.gif)
