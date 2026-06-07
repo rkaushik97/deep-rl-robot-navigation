@@ -12,10 +12,14 @@ Two tags, built from one [`docker/Dockerfile`](docker/Dockerfile):
 | `kaushik48/turtlebot3-drl:cpu`  | CPU (amd64 + arm64); also the only path on Apple-silicon Macs (headless, slow) |
 | `kaushik48/turtlebot3-drl:cuda` | NVIDIA GPU (needs `nvidia-container-toolkit` on the host) |
 
+Pull the prebuilt images with `docker pull kaushik48/turtlebot3-drl:cpu` (or `:cuda`), or build them yourself with `docker/build-cpu.sh build` and `docker/build-gpu.sh build`.
+
 ```bash
 docker login -u kaushik48
-docker/build-and-push.sh build     # build both tags locally
-docker/build-and-push.sh push      # build + push to Docker Hub
+docker/build-cpu.sh build     # build the :cpu tag locally
+docker/build-gpu.sh build     # build the :cuda tag locally
+docker/build-cpu.sh push      # build + push :cpu  (multi-arch amd64+arm64)
+docker/build-gpu.sh push      # build + push :cuda
 ```
 
 ## Run one container
