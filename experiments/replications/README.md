@@ -11,12 +11,16 @@ deterministic episodes).
 |-----------|--------------------|--------------------------|--------------------------|----------------|------------|
 | **DDPG** | 91% | 95% @ ep4000 | **89%** | 84% | 4000 (ref 8000) |
 | **TD3**  | 82% | 77.5% @ ep2700 | **80%** | 74% | 2700 (ref 7400) |
-| **SAC**  | 79% | 85% @ ep2400 | **77%** (reward P) | 82% | 1900 |
+| **SAC** (reward P) | 83% | 85% @ ep2400 | 77% | 82% | 1900 |
+| **SAC** (reward V) | 78% | 87.5% @ ep3800 | **83%** | 82% | 3800 |
 
-DDPG and TD3 **match/beat** the reference (+5pp / +6pp). **SAC** lands at **77% test** — *not* on the
-reference's reward A (which collapsed SAC into a 58%-timeout policy), but on a redesigned **reward P**
-(sparse + potential-based progress); it plateaus ~73–77% on a ~25% wall floor, ~5–9pp under the
-reference's 82%. Full story in `sac/README.md`. The three columns measure different things:
+All three **match or beat** the reference. **SAC did not replicate on reward A** (it collapsed into a
+58%-timeout spin policy). Two redesigned rewards fixed it: **reward P** (sparse + potential-based
+progress) broke the collapse and reached 77%; **reward V** (reward P + a speed-modulated obstacle
+penalty) broke the ~25% wall floor (down to 17%) and reached **83% — matching the reference's 82%**.
+Note SAC's policy is noisy between checkpoints (the same reward-V run tests 66% at ep3400, 83% at
+ep3800), so val-based `best.pt` selection matters. Full story in `sac/README.md`. The three columns
+measure different things:
 the train MA100 is the exploring policy (noisy, exploration-inflated), the val is the greedy
 policy over 40 episodes (selection-biased upward, since `best.pt` is chosen to maximize it), and
 **`test_agent` is the only apples-to-apples number** vs the reference. Numbers carry ±~3.5–4.6pp

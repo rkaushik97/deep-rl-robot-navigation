@@ -1,0 +1,3 @@
+sac examples/eval_sac_2346447_stage9 ep3400
+episodes=100 success=66 (66%) wall=33 obstacle=0 timeout=0 tumble=1
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/eval_sac_2346447_stage9/_test_stage9_eps3400_20260607-103342.txt

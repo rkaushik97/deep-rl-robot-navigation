@@ -8,12 +8,14 @@ documents the failure, the fix, and where it landed.
 | Reward | Best test | Profile | vs reference |
 |--------|-----------|---------|--------------|
 | A (reference dense) | ~55–65%, **collapsed** | 58% timeout, policy degrading | — |
-| **P (sparse + progress)** | **77%** (ep1900) | 0–1% timeout, ~22% wall | reference 82% |
+| P (sparse + progress) | 77% (ep1900) | 0–1% timeout, ~25% wall floor | 82% |
+| **V (P + obstacle penalty)** | **83%** (ep3800) | 0% timeout, **17% wall** | **matches 82%** |
 
-Test-set curve under reward P (each = 100 eps):
-```
-ep1100: 72%   ep1900: 77%   ep2400: 72%   ep2900: 71%   ->  plateau ~73%, wall floor ~25%
-```
+Reward P broke the collapse and reached a ~73–77% plateau but hit a ~25% wall floor. **Reward V**
+added a speed-modulated obstacle penalty that broke that floor (walls 25% → 17%) and reached
+**83% — matching the reference's 82%.** Note the SAC policy is noisy between checkpoints: the same
+reward-V run tests **66% at ep3400 but 83% at ep3800**, so the val-selected `best.pt` matters
+(here the val correctly flagged ep3800).
 
 ## Why reward A failed for SAC
 Reward A is dense with huge magnitude (±2500/−2000 terminal, scaled 0.1 → Q ~ O(±250)). Two
@@ -34,16 +36,27 @@ attractor, not a bug.
 - tau 0.005. See `reward_p_explore.sh`.
 
 Result: the timeout-collapse broke immediately (timeouts 58% → ~1%), success climbed to a
-healthy ~73% test plateau. The remaining gap to the reference's 82% is **obstacle avoidance** — a
-~25% wall floor that reward P (no clearance term) can't push past. Closing it is the next
-experiment (reward V: + speed-modulated obstacle penalty).
+healthy ~73–77% test plateau, capped by a ~25% wall floor (reward P has no clearance term).
+
+## Closing the wall floor — reward V
+- **Reward V** (`get_reward_V`): reward P **plus** a speed-modulated obstacle penalty
+  `r_speed = −OBSTACLE_K · (forward_speed/MAX) · ((SAFE − obs_dist)/SAFE)`, active only inside
+  `OBSTACLE_SAFE=0.40 m`, with `OBSTACLE_K=0.5`. It penalizes being *fast AND close* (≈0 when slow
+  or far), so it teaches "slow down in clutter" without forbidding being near walls — avoiding the
+  over-caution timeout trap a blanket proximity penalty (reward O) would cause. See
+  `reward_v_explore.sh`.
+- **Result: walls 25% → 17%, test 83% @ ep3800 — matching the reference's 82%.** This is the best
+  SAC result. (Watch the checkpoint noise: an arbitrary recent checkpoint can test ~66%; use the
+  val-selected best.)
 
 ## Contents
-`_metrics.tsv`, `training.png`, `curve_vs_reference.png`, `config.sh` + `reward_p_explore.sh`,
-`actor_stage9_episode1900_best.pt` (best by test, 77%), `train.log`, `test_agent_evals.txt`.
+`_metrics.tsv`, `training.png`, `curve_vs_reference.png`, `config.sh`, `reward_p_explore.sh` +
+`reward_v_explore.sh`, `actor_stage9_episode1900_best.pt` (reward P best, 77%) +
+`actor_stage9_episode3800_rewardV_best.pt` (reward V best, 83%), `train.log`, `test_agent_evals.txt`.
 
 ## Reproduce
 ```
-scripts/train.sh sac reward_p_explore
+scripts/train.sh sac reward_p_explore     # the collapse fix (~73-77%)
+scripts/train.sh sac reward_v_explore     # + obstacle penalty (~83%, best)
 scripts/eval.sh  sac <model_dir> <episode> 100
 ```

@@ -3,3 +3,6 @@ ep1100: SUCCESS 72% (wall 27%, timeout 1%)  [val 75%]
 ep1900: SUCCESS 77% (wall 21%, timeout 0%, tumble 2%)
 ep2400: SUCCESS 72% (wall 27%, timeout 0%)
 ep2900: SUCCESS 71% (wall 25%, timeout 1%)
+# --- reward V (sparse + progress + speed-modulated obstacle penalty) ---
+ep3400: SUCCESS 66% (wall 33%, timeout 0%)   [latest checkpoint — not best]
+ep3800: SUCCESS 83% (wall 17%, timeout 0%)   [val-best — BEST SAC result, matches reference 82%]
