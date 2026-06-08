@@ -92,8 +92,12 @@ if [ "$MODE" = "eval" ]; then
     { echo "ERROR: no actor_stage${STAGE}_episode${EPISODE}.pt in $MODEL_DIR"; exit 1; }
   export DRL_TEST_EPISODES=$NEPS DRL_VAL_EPS=0 DRL_DYNAMIC_GOALS=False
   STAGE_NAME="eval_${ALGO}_$$_stage${STAGE}"
-  LINK="$BASE/src/turtlebot3_drl/model/examples/$STAGE_NAME"
-  mkdir -p "$(dirname "$LINK")"; ln -sfn "$MODEL_DIR" "$LINK"
+  SESSION_DIR="$BASE/src/turtlebot3_drl/model/examples/$STAGE_NAME"
+  # MODEL_DIR is mounted read-only, but test_agent writes its per-test log INTO the session dir.
+  # So make the session dir a WRITABLE real dir and symlink just the actor weights in from the
+  # ro mount (eval is weights-only — that's the only checkpoint file test_agent reads).
+  mkdir -p "$SESSION_DIR"
+  ln -sfn "$MODEL_DIR/actor_stage${STAGE}_episode${EPISODE}.pt" "$SESSION_DIR/"
   exec ros2 run turtlebot3_drl test_agent "$ALGO" "examples/$STAGE_NAME" "$EPISODE"
 else
   export DRL_MAX_EPISODES=${DRL_MAX_EPISODES:-0}
