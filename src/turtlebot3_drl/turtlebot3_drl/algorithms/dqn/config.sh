@@ -4,7 +4,7 @@
 # --- Environment & Reward Settings ---
 export DRL_REWARD=A                 # dense reward "A"
 export DRL_DYNAMIC_GOALS=False      # no curriculum (random goals, like the eval)
-export DRL_BACKWARD=True            # backward motion allowed in discrete action set
+export DRL_BACKWARD=True            # linear maps linearly: 0.3 -> 30% speed, 1.0 -> full speed
 export DRL_STEP_TIME=0.05           # ~20 Hz control cadence
 export DRL_VAL_EPS=40               # in-loop validation every 100 eps
 
@@ -18,6 +18,7 @@ export DRL_ACTION_SIZE=5            # Number of discrete actions (e.g., forward,
 export DRL_TARGET_UPDATE_FREQ=1000  # Steps before copying weights to Target Q-Network
 
 # --- Epsilon-Greedy Exploration ---
-export DRL_EPSILON_START=1.0        # Start with 100% random actions for exploration
-export DRL_EPSILON_MIN=0.05         # Minimum exploration rate (exploit learned policy 95% of the time)
-export DRL_EPSILON_DECAY=1000000    # Rate of decay from START to MIN
+# Epsilon starts at 1.0 and is multiplied by DRL_EPSILON_DECAY once per train iteration
+# until it reaches DRL_EPSILON_MIN.
+export DRL_EPSILON_MIN=0.05         # Minimum exploration rate (exploit 95% of the time)
+export DRL_EPSILON_DECAY=0.9995     # Per-iteration multiplicative decay
