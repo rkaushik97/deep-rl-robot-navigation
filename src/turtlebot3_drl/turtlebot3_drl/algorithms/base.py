@@ -72,6 +72,13 @@ class OffPolicyAgent(ABC):
     def get_action_random(self):
         pass
 
+    def to_env_action(self, action):
+        # Map the agent's action to the [linear, angular] the env expects. Continuous agents
+        # already produce that, so this is identity; DQN overrides it to look its discrete
+        # action index up in POSSIBLE_ACTIONS. The agent still stores the raw action (the
+        # index, for DQN) in the replay buffer.
+        return action
+
     def _train(self, replaybuffer):
         # Pull a minibatch and move it to the GPU once. With PER the buffer also returns
         # the sampled indices + importance-sampling weights (used to de-bias the loss),
