@@ -32,14 +32,14 @@ def parse(test_log_path):
             last_counts = tok[-1]                         # cumulative "s/cw/co/t/tu"
             try:
                 outcome = int(tok[1])
+                if outcome == SUCCESS and len(tok) >= 5:
+                    durations.append(float(tok[3]))
+                    if len(tok) >= 7:                    # new format carries initial_distance
+                        dist, init = float(tok[4]), float(tok[5])
+                        if dist > 0:
+                            path_effs.append(min(1.0, init / dist))
             except (ValueError, IndexError):
-                continue
-            if outcome == SUCCESS and len(tok) >= 5:
-                durations.append(float(tok[3]))
-                if len(tok) >= 7:                        # new format carries initial_distance
-                    dist, init = float(tok[4]), float(tok[5])
-                    if dist > 0:
-                        path_effs.append(min(1.0, init / dist))
+                continue                                 # skip malformed rows, keep parsing
     if last_counts is None:
         return None
     parts = [int(x) for x in last_counts.split('/')]

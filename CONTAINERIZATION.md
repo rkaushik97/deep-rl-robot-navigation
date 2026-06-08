@@ -17,6 +17,7 @@ docker login -u kaushik48
 docker/build-cpu.sh build      # build the cpu image (use 'push' to publish)
 docker/build-gpu.sh build      # build the cuda image (use 'push' to publish)
 ```
+Building outside Docker? Run `colcon build` first. It regenerates the `DrlStep` message.
 
 ## Env vars
 `MODE` is train or eval. `ALGO` is ddpg, td3, or sac. `EXP` is an experiment name. `DRL_MAX_EPISODES`

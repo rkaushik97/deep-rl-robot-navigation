@@ -26,9 +26,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --- python deps (torch flavour chosen by build arg) ---------------------------------
 # Ubuntu 24.04 marks the system env "externally managed" (PEP 668); we install into the
 # ROS system interpreter on purpose so rclpy and torch share one interpreter.
+# Pinned for reproducibility. torch==2.12.0 resolves to +cpu or +cu124 via TORCH_INDEX_URL.
 RUN pip install --no-cache-dir --break-system-packages \
         --extra-index-url ${TORCH_INDEX_URL} \
-        torch numpy matplotlib pyyaml
+        torch==2.12.0 numpy==1.26.4 matplotlib==3.10.9 pyyaml==6.0.1
 
 # --- workspace ------------------------------------------------------------------------
 ENV WS=/opt/drlnav
