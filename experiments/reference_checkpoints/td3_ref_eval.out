@@ -1,0 +1,51 @@
+===== CLEAN EVAL (DYNAMIC_GOALS=False, fixed benchmark) : td3_ref_ep7400.pt , 40 eps =====
+[clean_eval] DYNAMIC_GOALS=False — fixed benchmark goals (correct).
+[1/40] SUCCESS    steps=34   gd=0.20 ga=-13deg minObs=0.70 lin=0.94
+[2/40] SUCCESS    steps=272  gd=0.20 ga=71deg minObs=0.42 lin=0.89
+[3/40] TIMEOUT    steps=989  gd=1.01 ga=142deg minObs=0.46 lin=1.00
+[4/40] SUCCESS    steps=425  gd=0.19 ga=-5deg minObs=0.38 lin=0.99
+[5/40] SUCCESS    steps=324  gd=0.19 ga=-19deg minObs=0.62 lin=0.87
+[6/40] SUCCESS    steps=720  gd=0.19 ga=-17deg minObs=0.52 lin=0.91
+[7/40] SUCCESS    steps=384  gd=0.20 ga=15deg minObs=0.59 lin=0.91
+[8/40] SUCCESS    steps=853  gd=0.20 ga=-7deg minObs=0.51 lin=0.95
+[9/40] SUCCESS    steps=422  gd=0.20 ga=-22deg minObs=0.62 lin=0.82
+[10/40] COLL_WALL  steps=65   gd=3.54 ga=-69deg minObs=0.00 lin=1.00
+[11/40] COLL_WALL  steps=966  gd=1.62 ga=-41deg minObs=0.13 lin=1.00
+[12/40] SUCCESS    steps=623  gd=0.20 ga=-6deg minObs=0.54 lin=0.97
+[13/40] TIMEOUT    steps=1032 gd=1.13 ga=-23deg minObs=0.30 lin=0.99
+[14/40] SUCCESS    steps=623  gd=0.20 ga=-12deg minObs=0.46 lin=0.74
+[15/40] SUCCESS    steps=635  gd=0.20 ga=-21deg minObs=0.58 lin=0.89
+[16/40] SUCCESS    steps=508  gd=0.19 ga=3deg minObs=0.34 lin=0.93
+[17/40] SUCCESS    steps=156  gd=0.20 ga=8deg minObs=0.51 lin=0.99
+[18/40] SUCCESS    steps=998  gd=0.19 ga=-2deg minObs=0.75 lin=0.99
+[19/40] SUCCESS    steps=308  gd=0.19 ga=1deg minObs=0.56 lin=0.85
+[20/40] SUCCESS    steps=254  gd=0.20 ga=0deg minObs=0.69 lin=0.77
+[21/40] SUCCESS    steps=712  gd=0.20 ga=5deg minObs=0.37 lin=0.90
+[22/40] SUCCESS    steps=816  gd=0.20 ga=-17deg minObs=0.45 lin=0.79
+[23/40] SUCCESS    steps=241  gd=0.19 ga=-11deg minObs=0.55 lin=1.00
+[24/40] SUCCESS    steps=560  gd=0.20 ga=6deg minObs=0.36 lin=1.00
+[25/40] SUCCESS    steps=354  gd=0.20 ga=-48deg minObs=0.55 lin=0.99
+[26/40] SUCCESS    steps=223  gd=0.20 ga=-5deg minObs=0.64 lin=0.77
+[27/40] SUCCESS    steps=286  gd=0.20 ga=-6deg minObs=0.40 lin=1.00
+[28/40] SUCCESS    steps=349  gd=0.20 ga=-9deg minObs=0.69 lin=0.90
+[29/40] SUCCESS    steps=441  gd=0.20 ga=-22deg minObs=0.69 lin=0.96
+[30/40] SUCCESS    steps=466  gd=0.20 ga=-19deg minObs=0.43 lin=0.98
+[31/40] SUCCESS    steps=806  gd=0.19 ga=-26deg minObs=0.76 lin=0.49
+[32/40] SUCCESS    steps=453  gd=0.20 ga=-19deg minObs=0.67 lin=0.86
+[33/40] SUCCESS    steps=334  gd=0.19 ga=-5deg minObs=0.39 lin=0.95
+[34/40] SUCCESS    steps=465  gd=0.20 ga=17deg minObs=0.24 lin=0.99
+[35/40] SUCCESS    steps=898  gd=0.20 ga=2deg minObs=0.47 lin=0.98
+[36/40] SUCCESS    steps=691  gd=0.20 ga=-2deg minObs=0.60 lin=0.79
+[37/40] TIMEOUT    steps=1025 gd=2.00 ga=-1deg minObs=0.33 lin=0.98
+[38/40] SUCCESS    steps=889  gd=0.19 ga=7deg minObs=0.48 lin=0.81
+[39/40] TIMEOUT    steps=1065 gd=1.99 ga=-45deg minObs=0.30 lin=0.99
+[40/40] SUCCESS    steps=229  gd=0.19 ga=-24deg minObs=0.66 lin=0.92
+
+==== REPLAY CAUSE BREAKDOWN ====
+episodes=40  success=34 (85%)  wall_collisions=2 (5%)
+  early/orientation (<40 steps)                0  (0% of walls)
+  wrong-heading (goal >100deg off-axis)        0  (0% of walls)
+  CLIP-WHILE-NAVIGATING (the problem)          2  (100% of walls)
+    - of clip-while-navigating: near-goal(<0.5m)=0, mid-journey=2
+    - clip happened at high speed (lin>0.5): 2 (100% of walls)
+CLEAN_EVAL_DONE

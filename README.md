@@ -47,6 +47,12 @@ scripts/train.sh sac reward_v_explore          # SAC, the contribution recipe
 scripts/eval.sh  <algo> <model_dir> <episode>  # test_agent, 100 episodes
 ```
 Training prints a live line and writes `_metrics.tsv` + `training.png` to its session dir.
+`test_agent` reports **success, collision rate, time-to-goal, and path efficiency**
+(straight-line/actual path) — see [evaluation](src/turtlebot3_drl/turtlebot3_drl/evaluation).
+
+## Containerized & distributed training
+The full stack runs in one image (`kaushik48/turtlebot3-drl:{cpu,cuda}`) for reproducible
+single-host runs and parallel Kubernetes sweeps — see [CONTAINERIZATION.md](CONTAINERIZATION.md).
 
 ## Add a new algorithm
 Same pattern SAC followed:

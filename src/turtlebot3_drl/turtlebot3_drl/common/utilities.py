@@ -19,10 +19,17 @@ except FileNotFoundError:
     print("\033[1m" + "\033[93m" + "Make sure to launch the gazebo simulation node first!" + "\033[0m}")
 
 def check_gpu():
-    print("gpu torch available: ", torch.cuda.is_available())
-    if (torch.cuda.is_available()):
-        print("device name: ", torch.cuda.get_device_name(0))
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Prefer CUDA, then Apple-silicon Metal (MPS), else CPU. NOTE: MPS only resolves for a
+    # NATIVE macOS process — inside the Linux training container it is never available, so
+    # the dockerized pipeline runs CUDA (GPU box) or CPU (incl. arm64 / Apple silicon).
+    if torch.cuda.is_available():
+        print("gpu torch available:  cuda —", torch.cuda.get_device_name(0))
+        return torch.device("cuda")
+    if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+        print("gpu torch available:  mps (Apple Metal)")
+        return torch.device("mps")
+    print("gpu torch available:  no — using cpu")
+    return torch.device("cpu")
 
 def step(agent_self, action, previous_action):
     req = DrlStep.Request()
@@ -38,14 +45,14 @@ def step(agent_self, action, previous_action):
         if future.done():
             if future.result() is not None:
                 res = future.result()
-                return res.state, res.reward, res.done, res.success, res.distance_traveled, list(res.reward_components)
+                return res.state, res.reward, res.done, res.success, res.distance_traveled, list(res.reward_components), res.initial_distance
             else:
                 agent_self.get_logger().error(
                     'Exception while calling service: {0}'.format(future.exception()))
                 print("ERROR getting step service response!")
 
 def init_episode(agent_self):
-    state, _, _, _, _, _ = step(agent_self, [], [0.0, 0.0])
+    state, _, _, _, _, _, _ = step(agent_self, [], [0.0, 0.0])
     return state
 
 def get_goal_status(agent_self):

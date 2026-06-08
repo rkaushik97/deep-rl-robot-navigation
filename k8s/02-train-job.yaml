@@ -1,0 +1,57 @@
+# Single training run as a K8s Job (CPU image). A complete, ready-to-apply example —
+# `sweep.sh` generates many of these with different hyperparameters per pod.
+#
+#   kubectl apply -f k8s/00-namespace.yaml -f k8s/01-pvc.yaml -f k8s/02-train-job.yaml
+#   kubectl -n drlnav logs -f job/drl-train-ddpg
+#
+# The whole sim stack (gz sim + environment + gazebo_goals + trainer) runs inside the one
+# container via the image entrypoint; the Job completes when training exits.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: drl-train-ddpg
+  namespace: drlnav
+spec:
+  backoffLimit: 1
+  completions: 1
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: drl-train
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: trainer
+          image: kaushik48/turtlebot3-drl:cpu
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MODE
+              value: "train"
+            - name: ALGO
+              value: "ddpg"
+            - name: DRL_STAGE
+              value: "9"
+            # bounded run so the Job terminates (0 = unbounded); raise for a real run
+            - name: DRL_MAX_EPISODES
+              value: "2000"
+          resources:
+            requests: { cpu: "2", memory: "2Gi" }
+            limits:   { cpu: "4", memory: "4Gi" }
+          volumeMounts:
+            - name: results
+              mountPath: /opt/drlnav/src/turtlebot3_drl/model
+              subPath: model
+            - name: results
+              mountPath: /opt/drlnav/src/turtlebot3_drl/turtlebot3_drl/evaluation/results
+              subPath: results
+            - name: dshm
+              mountPath: /dev/shm
+      volumes:
+        - name: results
+          persistentVolumeClaim:
+            claimName: drl-results
+        - name: dshm                 # gz/ROS shared-memory transport
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
