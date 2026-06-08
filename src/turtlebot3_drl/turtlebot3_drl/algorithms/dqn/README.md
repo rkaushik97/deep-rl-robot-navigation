@@ -8,6 +8,11 @@ actions (see `POSSIBLE_ACTIONS` in `dqn.py`); the harness maps the chosen index 
 - `experiments/` — variations to try beating the baseline. Each file exports only the knobs
   it changes and is sourced AFTER `config.sh`.
 
+## Results
+test_agent, 100 random-goal episodes, stage 9, ep3400: **52% success** (48% wall collisions,
+0 obstacle, 0 timeout), path_efficiency 0.653, time_to_goal 16.5 s. Eval ran with backward
+disabled and step_time 0.01 to match how ep3400 was trained.
+
 ## Train
 ```
 scripts/train.sh dqn               # base config
