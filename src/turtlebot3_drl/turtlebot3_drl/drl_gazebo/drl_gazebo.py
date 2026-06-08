@@ -175,7 +175,10 @@ class DRLGazebo(Node):
             self.generate_random_goal()
             print(f"fail: reset the environment, (random) goal pose: {self.goal_x:.2f}, {self.goal_y:.2f}")
         elif ENABLE_DYNAMIC_GOALS:
-            self.generate_dynamic_goal_pose(request.robot_pose_x, request.robot_pose_y, request.radius)
+            # reset_simulation() above put the robot back at the origin (0,0); place the
+            # curriculum goal relative to THAT, not the pre-reset crash pose, so the
+            # robot->goal distance actually equals the curriculum radius on failures.
+            self.generate_dynamic_goal_pose(0.0, 0.0, request.radius)
             print(f"fail: reset the environment, goal pose: {self.goal_x:.2f}, {self.goal_y:.2f}, radius: {request.radius:.2f}")
         else:
             self.generate_goal_pose()
