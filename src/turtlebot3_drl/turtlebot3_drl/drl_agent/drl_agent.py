@@ -240,10 +240,13 @@ class DrlAgent(Node):
                 else:
                     action = self.model.get_action(state, self.training, self.total_steps + step)  # GLOBAL step -> OU sigma decays over training
 
-                next_state, reward, episode_done, outcome, distance_traveled, reward_components, initial_distance = util.step(self, action, action_past)
+                # Discrete agents (DQN) return an action INDEX; map it to [linear, angular] for the
+                # env while the raw index is what gets stored in the buffer. Continuous: identity.
+                action_env = self.model.to_env_action(action)
+                next_state, reward, episode_done, outcome, distance_traveled, reward_components, initial_distance = util.step(self, action_env, action_past)
                 if self.stacking:
                     next_state = self.frame_stacker.push(next_state)
-                action_past = copy.deepcopy(action)
+                action_past = copy.deepcopy(action_env)
                 reward_sum += reward
                 for i, c in enumerate(reward_components[:len(comp_sums)]):
                     comp_sums[i] += c
@@ -274,7 +277,7 @@ class DrlAgent(Node):
                                 'loss_actor': float(loss_a),
                                 'iteration': int(self.model.iteration),
                                 'epsilon': float(self.model.epsilon),
-                                'action_last': [float(a) for a in action],
+                                'action_last': [float(a) for a in action_env],
                                 'reward_last': float(reward),
                             })))
 
@@ -397,10 +400,11 @@ class DrlAgent(Node):
             outcome = 0
             while not episode_done:
                 action = self.model.get_action(state, False, step)  # is_training=False -> greedy, no noise
-                next_state, _, episode_done, outcome, _, _, _ = util.step(self, action, action_past)
+                action_env = self.model.to_env_action(action)       # discrete index -> [lin, ang]; identity for continuous
+                next_state, _, episode_done, outcome, _, _, _ = util.step(self, action_env, action_past)
                 if self.stacking:
                     next_state = self.frame_stacker.push(next_state)
-                action_past = copy.deepcopy(action)
+                action_past = copy.deepcopy(action_env)
                 state = copy.deepcopy(next_state)
                 step += 1
                 time.sleep(self.model.step_time)

@@ -1,0 +1,4 @@
+sac examples/demo_sac_stage9 ep4700
+episodes=100 success=73 (73%) wall=25 obstacle=0 timeout=0 tumble=2
+collision_rate=0.2500 time_to_goal=3.893 path_efficiency=0.847
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/demo_sac_stage9/_test_stage9_eps4700_20260610-112926.txt

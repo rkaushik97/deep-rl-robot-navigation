@@ -97,12 +97,13 @@ OBSTACLE_SAFE   = float(os.environ.get('DRL_OBSTACLE_SAFE', '0.40')) # reward_O:
 NOISE_SIGMA_MAX    = float(os.environ.get('DRL_SIGMA_MAX', '0.1'))
 NOISE_SIGMA_MIN    = float(os.environ.get('DRL_SIGMA_MIN', '0.1'))
 NOISE_DECAY_PERIOD = int(float(os.environ.get('DRL_DECAY', '8000000')))
-ACTION_SIZE     = 2         # Not used for DQN, see DQN_ACTION_SIZE
+ACTION_SIZE     = 2         # continuous algos: [linear, angular]. DQN uses DQN_ACTION_SIZE.
+DQN_ACTION_SIZE = int(os.environ.get('DRL_ACTION_SIZE', '5'))   # DQN: number of discrete actions
 HIDDEN_SIZE     = 512       # 1024 was tried for SAC v2 — caused policy collapse, reverted
 
 BATCH_SIZE      = int(os.environ.get('DRL_BATCH_SIZE','128'))  # Reference winning-DDPG value (tomasvr/turtlebot3_drlnav). 1024 + low lr starved effective updates -> policy collapse on stage 9.
 BUFFER_SIZE     = 1000000   # Number of samples stored in replay buffer before FIFO
-DISCOUNT_FACTOR = 0.99
+DISCOUNT_FACTOR = float(os.environ.get('DRL_GAMMA', '0.99'))
 # N-step returns (env: DRL_NSTEP). 1 = exact 1-step TD (default, byte-identical). 3..5 speeds
 # credit assignment on the sparse/dynamic task. No network-shape change -> warm-start/resume safe.
 N_STEP = int(os.environ.get('DRL_NSTEP', '1'))
@@ -111,8 +112,9 @@ TAU             = float(os.environ.get('DRL_TAU','0.003'))  # Reference winning-
 
 OBSERVE_STEPS   = 25000     # At training start random actions are taken for N steps for better exploration
 STEP_TIME       = float(os.environ.get('DRL_STEP_TIME','0.01'))  # Reference winning-DDPG value: a defined, consistent action-execution window. 0.0 made the MDP timestep equal to variable ROS service latency (ill-defined).
-EPSILON_DECAY   = 0.9995    # Epsilon decay per step
-EPSILON_MINIMUM = 0.05
+EPSILON_DECAY   = float(os.environ.get('DRL_EPSILON_DECAY', '0.9995'))  # DQN: per-train-iter multiplicative decay
+EPSILON_MINIMUM = float(os.environ.get('DRL_EPSILON_MIN', '0.05'))
+TARGET_UPDATE_FREQUENCY = int(os.environ.get('DRL_TARGET_UPDATE_FREQ', '1000'))  # DQN: hard target sync every N train iters
 
 # Eval-based checkpoint selection: every MODEL_STORE_INTERVAL training eps,
 # pause and run N deterministic-policy episodes; save `_best.pt` only when

@@ -17,6 +17,7 @@ action, and accumulated reward. Visualization idea from [tomasvr/turtlebot3_drln
 | DDPG | **89%** | 84% | replication — [experiments/replications/](experiments/replications) |
 | TD3  | **80%** | 74% | replication |
 | SAC  | **84%** | 82% | new contribution — [SAC/](SAC) |
+| DQN  | **52%** | — | discrete-action baseline (5 actions), ep3400 |
 
 ## Layout
 ```

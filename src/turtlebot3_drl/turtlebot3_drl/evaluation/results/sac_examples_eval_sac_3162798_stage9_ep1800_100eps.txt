@@ -1,0 +1,4 @@
+sac examples/eval_sac_3162798_stage9 ep1800
+episodes=100 success=73 (73%) wall=26 obstacle=0 timeout=0 tumble=1
+collision_rate=0.2600 time_to_goal=3.629 path_efficiency=0.855
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/eval_sac_3162798_stage9/_test_stage9_eps1800_20260609-135849.txt
