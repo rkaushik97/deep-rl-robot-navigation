@@ -235,3 +235,4 @@ __marimo__/
 /runs/
 /experiments/tmp/
 /experiments/exp[0-9]*/
+tmp/

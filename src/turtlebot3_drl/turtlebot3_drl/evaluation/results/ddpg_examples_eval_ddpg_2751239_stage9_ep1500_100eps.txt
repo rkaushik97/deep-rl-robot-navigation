@@ -1,0 +1,4 @@
+ddpg examples/eval_ddpg_2751239_stage9 ep1500
+episodes=100 success=79 (79%) wall=19 obstacle=0 timeout=2 tumble=0
+collision_rate=0.1900 time_to_goal=4.286 path_efficiency=0.778
+source_log=/home/kaushik/project/deep-rl-robot-navigation/src/turtlebot3_drl/model/examples/eval_ddpg_2751239_stage9/_test_stage9_eps1500_20260609-020248.txt

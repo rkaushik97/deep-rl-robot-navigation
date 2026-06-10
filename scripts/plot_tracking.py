@@ -22,6 +22,7 @@ os.makedirs(OUT, exist_ok=True)
 DQN      = os.path.join(MODEL, "dqn_2_stage_9")
 DDPG_ON  = os.path.join(MODEL, "ddpg_0_stage_9")    # curriculum ON  (MIN=1.0, MAX=2.8)
 DDPG_OFF = os.path.join(MODEL, "ddpg_47_stage_9")   # curriculum OFF (89% reference run)
+SAC_VH   = os.path.join(MODEL, "sac_0_stage_9")     # reward VH (exp007); target: beat reward V's 84%
 
 COL = {"episode": 0, "reward": 3, "ma100": 4, "loss_critic": 5, "loss_actor": 6}
 
@@ -99,6 +100,29 @@ def plot_ddpg_on_off():
     print("wrote", p)
 
 
+def plot_sac_vh():
+    d = load(SAC_VH)
+    if not d["episode"]:
+        print("SAC-VH: no episodes logged yet — skipping")
+        return
+    ep = d["episode"]
+    fig, ax = plt.subplots(1, 3, figsize=(15, 4))
+    ax[0].plot(ep, d["ma100"], color="tab:purple")
+    ax[0].axhline(84, ls="--", color="tab:green", lw=1, label="reward V (84%)")
+    ax[0].set_title("Success rate (MA100)"); ax[0].set_xlabel("episode"); ax[0].set_ylabel("%"); ax[0].set_ylim(0, 100); ax[0].legend()
+    ax[1].plot(ep, d["reward"], color="0.8", lw=0.8)
+    ax[1].plot(ep, rolling(d["reward"]), color="tab:green")
+    ax[1].set_title("Episode reward (raw + MA50)"); ax[1].set_xlabel("episode")
+    ax[2].plot(ep, d["loss_critic"], color="tab:red")
+    ax[2].set_title("Critic loss"); ax[2].set_xlabel("episode")
+    fig.suptitle(f"SAC reward VH (exp007) — ep{int(ep[-1])}, MA100={d['ma100'][-1]:.0f}%  (target: beat V's 84%)")
+    fig.tight_layout()
+    p = os.path.join(OUT, "sac_vh_tracking.png")
+    fig.savefig(p, dpi=110); plt.close(fig)
+    print("wrote", p)
+
+
 if __name__ == "__main__":
     plot_dqn()
     plot_ddpg_on_off()
+    plot_sac_vh()
