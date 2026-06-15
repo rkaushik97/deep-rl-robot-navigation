@@ -48,6 +48,27 @@ RUN . /opt/ros/jazzy/setup.sh \
 # prefix path when the earlier RUN sourced setup.sh).
 RUN . /opt/ros/jazzy/setup.sh && colcon build --symlink-install
 
+# --- optional visualization layer (tag :viz) -----------------------------------------
+# The lean cpu/cuda images are headless and ship neither RViz nor a camera image bridge.
+# Build with --build-arg WITH_VIZ=1 to add them for GUI use on a workstation (e.g. macOS
+# via XQuartz X11 forwarding). Kept off the default images so headless train/eval stay lean.
+#   rviz2            : the RViz GUI
+#   ros-gz-image     : image_bridge for the /capture_cam camera (activations demo)
+#   robot_state_pub  : publishes the burger URDF + link TF so RViz can draw the RobotModel
+#   xcb / xkb libs   : Qt xcb platform plugin deps for rendering to a forwarded X server
+ARG WITH_VIZ=0
+RUN if [ "$WITH_VIZ" = "1" ]; then \
+        apt-get update && apt-get install -y --no-install-recommends \
+            ros-jazzy-rviz2 \
+            ros-jazzy-ros-gz-image \
+            ros-jazzy-robot-state-publisher \
+            ros-jazzy-xacro \
+            libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+            libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
+            libxkbcommon-x11-0 libgl1-mesa-dri \
+        && rm -rf /var/lib/apt/lists/* ; \
+    fi
+
 # --- entrypoint + helpers -------------------------------------------------------------
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh

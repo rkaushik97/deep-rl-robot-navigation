@@ -1,0 +1,40 @@
+# Visualization overlay image (tag :viz) for running inference WITH a GUI on a workstation
+# (e.g. macOS via XQuartz X11 forwarding). Built ON TOP of the published headless image so it
+# is a fast, thin layer — it does NOT redo rosdep/colcon for the whole workspace, only rebuilds
+# the gazebo package to pick up the new viz launch + capture_cam model + rviz config.
+#
+#   docker build -f docker/Dockerfile.viz -t kaushik48/turtlebot3-drl:viz .   # context = repo root
+#
+# (A from-scratch equivalent is `docker/Dockerfile --build-arg WITH_VIZ=1`, but that re-runs the
+#  full build; prefer this overlay unless the base image isn't available.)
+ARG BASE_IMAGE=kaushik48/turtlebot3-drl:cpu
+FROM ${BASE_IMAGE}
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# GUI packages absent from ros-base: RViz, the camera image bridge (activations demo),
+# robot_state_publisher (RViz RobotModel), and the Qt xcb platform-plugin client libs that
+# rendering to a forwarded X server needs.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ros-jazzy-rviz2 \
+        ros-jazzy-ros-gz-image \
+        ros-jazzy-robot-state-publisher \
+        ros-jazzy-xacro \
+        ros-jazzy-rviz-2d-overlay-msgs ros-jazzy-rviz-2d-overlay-plugins \
+        libxcb-cursor0 libxcb-xinerama0 libxcb-icccm4 libxcb-image0 \
+        libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 \
+        libxkbcommon-x11-0 libgl1-mesa-dri \
+        x11vnc novnc websockify fluxbox wmctrl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Overlay the updated sim package (adds turtlebot3_drl_viz_stage9.launch.py, the capture_cam
+# model, and rviz/drl.rviz) and the VIZ-aware entrypoint, then rebuild ONLY that package.
+ENV WS=/opt/drlnav
+COPY src/turtlebot3_drl_gazebo ${WS}/src/turtlebot3_drl_gazebo
+COPY visualisation ${WS}/visualisation
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && . /opt/ros/jazzy/setup.sh \
+    && cd ${WS} && colcon build --symlink-install --packages-select turtlebot3_drl_gazebo
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

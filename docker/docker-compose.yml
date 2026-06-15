@@ -66,6 +66,46 @@ services:
       - ${MODEL_DIR:?eval needs MODEL_DIR}:/checkpoint:ro
       - drl-results:/opt/drlnav/src/turtlebot3_drl/turtlebot3_drl/evaluation/results
 
+  # --- visualized inference (GUI over X11 forwarding — macOS/XQuartz) ---
+  # Needs the :viz image (built with --build-arg WITH_VIZ=1) and a reachable X server.
+  # On macOS: install XQuartz, enable "Allow connections from network clients", then
+  #   xhost + 127.0.0.1
+  # Runs the SAME eval/inference as `eval`, but shows the gz GUI client; set VIZ_RVIZ=1
+  # to also start RViz and/or VIZ_CAPTURE=1 to spawn the overhead /capture_cam camera.
+  #   MODEL_DIR=/abs/path/to/session EPISODE=4000 \
+  #     docker compose -f docker/docker-compose.yml --profile viz up viz
+  viz:
+    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.viz
+    image: kaushik48/turtlebot3-drl:viz
+    profiles: ["viz"]
+    environment:
+      <<: *common-env
+      MODE: ${MODE:-eval}
+      VIZ: "1"
+      # VIZ_VNC=1 (default): render in-container on software GL and stream the desktop over noVNC
+      # (browser) — the reliable path for Gazebo Harmonic on macOS. VIZ_VNC=0 falls back to pushing
+      # the GUI at a host X server (XQuartz), which leaves Gazebo's viewport blank (network GLX).
+      VIZ_VNC: ${VIZ_VNC:-1}
+      VIZ_RVIZ: ${VIZ_RVIZ:-0}
+      VIZ_CAPTURE: ${VIZ_CAPTURE:-0}
+      VIZ_HEADLESS: ${VIZ_HEADLESS:-0}
+      # VIZ_DEMO=1: the live SAC inference demo — viz_helper.py (HUD/markers) + RViz demo.rviz
+      # alongside Gazebo. Run with ALGO=sac and a SAC checkpoint (see VISUALIZATION.md).
+      VIZ_DEMO: ${VIZ_DEMO:-0}
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      MODEL_DIR: /checkpoint
+      EPISODE: ${EPISODE:?viz needs EPISODE}
+      N_EPS: ${N_EPS:-5}
+    ports:
+      - "6080:6080"   # noVNC (browser): http://localhost:6080/vnc.html
+      - "5900:5900"   # raw VNC: connect a VNC client to localhost:5900
+    volumes:
+      - ${MODEL_DIR:?viz needs MODEL_DIR}:/checkpoint:ro
+      - drl-results:/opt/drlnav/src/turtlebot3_drl/turtlebot3_drl/evaluation/results
+
 volumes:
   drl-model:
   drl-results:
