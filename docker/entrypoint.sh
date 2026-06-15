@@ -43,15 +43,43 @@ export GZ_PARTITION=${GZ_PARTITION:-drl_${MODE}_${ALGO}_$$}
 export PYTHONUNBUFFERED=1
 NPROC=$(nproc); export OMP_NUM_THREADS=$NPROC MKL_NUM_THREADS=$NPROC OPENBLAS_NUM_THREADS=$NPROC
 
-# ---- headless software rendering ----
-# gz must still render the LiDAR sensor even headless; on a GPU-less node (incl. arm64 /
-# Apple-silicon under Docker) force the mesa software rasteriser and a virtual display.
+# ---- rendering ----
+# gz always renders (the LiDAR sensor, and in VIZ mode the GUI too); on a GPU-less host
+# (incl. arm64 / Apple-silicon under Docker) force the mesa software rasteriser.
 export LIBGL_ALWAYS_SOFTWARE=${LIBGL_ALWAYS_SOFTWARE:-1}
-export QT_QPA_PLATFORM=offscreen
-if [ -z "${DISPLAY:-}" ]; then
-  Xvfb :99 -screen 0 1280x1024x24 >/tmp/xvfb.log 2>&1 &
-  export DISPLAY=:99
-  sleep 2
+start_xvfb() {  # offscreen sensor rendering when there is no real display
+  export QT_QPA_PLATFORM=offscreen
+  if [ -z "${DISPLAY:-}" ]; then
+    Xvfb :99 -screen 0 1280x1024x24 >/tmp/xvfb.log 2>&1 &
+    export DISPLAY=:99
+    sleep 2
+  fi
+}
+
+if [ "${VIZ:-0}" = "1" ]; then
+  # Everything (server, sensors, AND the GUI) renders on an internal Xvfb with llvmpipe software
+  # GL — the proven path (llvmpipe gives OpenGL 4.5, so OGRE2 works headless). The finished pixels
+  # are then streamed off the box, NOT pushed as GL over the network:
+  #   VIZ_VNC=1 (default): x11vnc + noVNC serve the Xvfb desktop -> view in a browser / VNC client.
+  #   VIZ_VNC=0          : legacy path that points the GUI at a host X server (XQuartz) over X11
+  #                        forwarding. Kept for reference, but Gazebo Harmonic's Qt-Quick GUI can't
+  #                        get a usable GL context over network GLX, so its viewport stays blank.
+  VNC=${VIZ_VNC:-1}
+  WANT_GUI=$([ "${VIZ_HEADLESS:-0}" = "1" ] && echo 0 || echo 1)
+  unset DISPLAY            # ignore any inherited host DISPLAY; force a fresh internal Xvfb
+  start_xvfb              # -> DISPLAY=:99 + QT_QPA_PLATFORM=offscreen for the server-side stack
+  HEADLESS=true           # the launch itself never starts a gz client
+  if [ "$VNC" = "1" ]; then
+    GUI_DISPLAY=:99                      # GUI renders on the internal Xvfb; pixels streamed via VNC
+    echo "===== VIZ(VNC): rendering on :99 (software GL); serving noVNC :6080 / VNC :5900 ====="
+  else
+    GUI_DISPLAY=${GUI_DISPLAY:-host.docker.internal:0}   # legacy XQuartz path (GUI viewport blank)
+    echo "===== VIZ(X11): GUI -> $GUI_DISPLAY (indirect GLX — Gazebo viewport typically blank) ====="
+  fi
+else
+  # Default headless train/eval path (compose / k8s): gz renders the LiDAR sensor offscreen.
+  HEADLESS=true
+  start_xvfb
 fi
 
 # ---- config: algo base config.sh, optional experiment, then env overrides win ----
@@ -72,18 +100,78 @@ fi
 for k in "${!OVERRIDE[@]}"; do export "$k=${OVERRIDE[$k]}"; done
 
 # ---- bring up the sim stack ----
-WORLD_LAUNCH="turtlebot3_drl_stage${STAGE}.launch.py"
 echo "===== $MODE  algo=$ALGO  stage=$STAGE  dom=$ROS_DOMAIN_ID  part=$GZ_PARTITION ====="
 env | grep -E '^DRL_' | sort || true
 
-nohup ros2 launch turtlebot3_drl_gazebo "$WORLD_LAUNCH" headless:=true >/tmp/sim.log 2>&1 &
+if [ "${VIZ:-0}" = "1" ]; then
+  # Server stack offscreen on the internal Xvfb. robot_state_publisher (TF for RViz) and the
+  # overhead capture cam render here too; the gz client / RViz are launched separately below.
+  WORLD_LAUNCH="turtlebot3_drl_viz_stage${STAGE}.launch.py"
+  nohup ros2 launch turtlebot3_drl_gazebo "$WORLD_LAUNCH" \
+        headless:=true \
+        rviz:=false \
+        robot_state_pub:="$([ "${VIZ_RVIZ:-0}" = "1" ] && echo true || echo false)" \
+        capture_cam:="$([ "${VIZ_CAPTURE:-0}" = "1" ] && echo true || echo false)" \
+        >/tmp/sim.log 2>&1 &
+else
+  WORLD_LAUNCH="turtlebot3_drl_stage${STAGE}.launch.py"
+  nohup ros2 launch turtlebot3_drl_gazebo "$WORLD_LAUNCH" headless:=true >/tmp/sim.log 2>&1 &
+fi
 sleep 30
+
+# ---- GUI surfaces (gz client / RViz) + pixel streaming ----
+# The GUI connects to the already-running gz server over gz-transport (same GZ_PARTITION). In VNC
+# mode it renders on the internal Xvfb with software GL (works) and x11vnc + noVNC stream the
+# framebuffer; in legacy X11 mode it's pushed at a host X server over indirect GLX (viewport blank).
+if [ "${VIZ:-0}" = "1" ] && [ "$WANT_GUI" = "1" ]; then
+  RVIZ_CFG="$BASE/install/turtlebot3_drl_gazebo/share/turtlebot3_drl_gazebo/rviz/drl.rviz"
+  if [ "$VNC" = "1" ]; then
+    # window manager so the gz/RViz windows are movable/resizable inside the streamed desktop
+    nohup fluxbox >/tmp/fluxbox.log 2>&1 &
+    # share the Xvfb framebuffer over RFB, then bridge it to a browser over WebSocket (noVNC)
+    nohup x11vnc -display :99 -nopw -forever -shared -rfbport 5900 >/tmp/x11vnc.log 2>&1 &
+    nohup websockify --web=/usr/share/novnc 6080 localhost:5900 >/tmp/novnc.log 2>&1 &
+    sleep 2
+    echo "===== open http://localhost:6080/vnc.html  (or VNC client -> localhost:5900) ====="
+    GUI_ENV=(env "DISPLAY=:99" "QT_QPA_PLATFORM=xcb" "LIBGL_ALWAYS_SOFTWARE=1")
+    GUI_ENGINE=${GZ_GUI_ENGINE:-ogre2}   # llvmpipe gives GL 4.5, so OGRE2 renders fine on Xvfb
+  else
+    GUI_ENV=(env "DISPLAY=$GUI_DISPLAY" "LIBGL_ALWAYS_INDIRECT=1" "QT_QPA_PLATFORM=xcb" "LIBGL_ALWAYS_SOFTWARE=0")
+    GUI_ENGINE=${GZ_GUI_ENGINE:-ogre}    # iGLX only does old GL; try OGRE v1 (still usually blank)
+  fi
+  echo "===== launching gz GUI client on $GUI_DISPLAY (--render-engine-gui $GUI_ENGINE) ====="
+  nohup "${GUI_ENV[@]}" gz sim -g -v2 --force-version 8 --render-engine-gui "$GUI_ENGINE" >/tmp/gui.log 2>&1 &
+  if [ "${VIZ_DEMO:-0}" = "1" ]; then
+    # Live SAC inference demo (the demo.rviz HUD): viz_helper publishes the world TF, goal sphere,
+    # robot arrow, path, and the Algorithm/Episode/Success/Rate stats marker; RViz shows it with
+    # the bundled top-down demo config. Both connect over the shared ROS_DOMAIN_ID/GZ_PARTITION.
+    echo "===== DEMO: launching viz_helper + RViz (demo.rviz) ====="
+    nohup "${GUI_ENV[@]}" python3 "$BASE/visualisation/viz_helper.py" --ros-args -p use_sim_time:=true \
+          >/tmp/viz_helper.log 2>&1 &
+    nohup "${GUI_ENV[@]}" ros2 run rviz2 rviz2 -d "$BASE/visualisation/demo.rviz" --ros-args -p use_sim_time:=true \
+          >/tmp/rviz.log 2>&1 &
+    # best-effort: tile gz left / RViz right in the streamed 1280x1024 desktop once they appear
+    ( for _ in $(seq 1 20); do sleep 3
+        DISPLAY=:99 wmctrl -r "Gazebo" -e '0,0,0,632,1000'   2>/dev/null && \
+        DISPLAY=:99 wmctrl -r "RViz"   -e '0,640,0,632,1000' 2>/dev/null && break
+      done ) &
+  elif [ "${VIZ_RVIZ:-0}" = "1" ]; then
+    echo "===== launching RViz on $GUI_DISPLAY ====="
+    nohup "${GUI_ENV[@]}" ros2 run rviz2 rviz2 -d "$RVIZ_CFG" --ros-args -p use_sim_time:=true \
+          >/tmp/rviz.log 2>&1 &
+  fi
+fi
 nohup ros2 run turtlebot3_drl environment  >/tmp/env.log   2>&1 &
 nohup ros2 run turtlebot3_drl gazebo_goals >/tmp/goals.log 2>&1 &
 sleep 10
 
 # ---- run the job in the foreground ----
-if [ "$MODE" = "eval" ]; then
+if [ "$MODE" = "sim" ]; then
+  # Sim-only: bring up the stack and hold, so an external controller (e.g.
+  # scripts/capture_visual.py for the activations demo) can drive the robot. No agent runs here.
+  echo "===== sim up (MODE=sim); exec your controller into this container, Ctrl-C to stop ====="
+  exec sleep infinity
+elif [ "$MODE" = "eval" ]; then
   : "${MODEL_DIR:?eval needs MODEL_DIR (mounted session dir)}"
   : "${EPISODE:?eval needs EPISODE}"
   NEPS=${N_EPS:-100}

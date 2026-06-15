@@ -40,8 +40,9 @@ install(TARGETS obstacle_animator
   RUNTIME DESTINATION bin/${PROJECT_NAME}
 )
 
-# Install the sim assets (no rviz/ — RViz dropped from the lean trainer).
-install(DIRECTORY launch models worlds params
+# Install the sim assets. rviz/ holds the config used by the :viz image's viz launch;
+# it is just a config file, harmless in the lean images (only the :viz image ships rviz2).
+install(DIRECTORY launch models worlds params rviz
   DESTINATION share/${PROJECT_NAME}/
 )
 

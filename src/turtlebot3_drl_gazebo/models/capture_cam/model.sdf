@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!-- Overhead camera for the network-activations demo (scripts/capture_visual.py).
+     Spawned at runtime only by the viz launch (capture_cam:=true) so it never burdens
+     headless training renders. Looks straight down from 6 m and publishes /capture_cam.
+     Rendered by the world's gz-sim-sensors-system (ogre2 / software GL). -->
+<sdf version="1.6">
+  <model name="capture_cam">
+    <static>true</static>
+    <pose>0 0 6 0 1.5708 1.5708</pose>
+    <link name="link">
+      <sensor name="cam" type="camera">
+        <update_rate>20</update_rate>
+        <topic>capture_cam</topic>
+        <camera>
+          <horizontal_fov>1.2</horizontal_fov>
+          <image>
+            <width>600</width>
+            <height>600</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>40</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+  </model>
+</sdf>
