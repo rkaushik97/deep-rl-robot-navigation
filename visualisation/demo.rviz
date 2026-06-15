@@ -1,0 +1,63 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Global Options:
+    Fixed Frame: world
+    Background Color: 40; 44; 52
+    Frame Rate: 20
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Plane Cell Count: 12
+      Cell Size: 0.5
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Marker Scale: 0.6
+    - Class: rviz_default_plugins/LaserScan
+      Name: LaserScan
+      Enabled: true
+      Size (m): 0.05
+      Style: Spheres
+      Color: 255; 255; 255
+      Topic:
+        Value: /scan
+        Reliability Policy: Best Effort
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/Marker
+      Name: Goal (red)
+      Enabled: true
+      Topic:
+        Value: /viz/goal_marker
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/Marker
+      Name: Robot
+      Enabled: true
+      Topic:
+        Value: /viz/robot_marker
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/Path
+      Name: Path
+      Enabled: true
+      Color: 25; 200; 255
+      Topic:
+        Value: /viz/path
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/Marker
+      Name: Stats
+      Enabled: true
+      Topic:
+        Value: /viz/stats
+        Reliability Policy: Reliable
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Name: TopDown
+      Scale: 90
+      Angle: 4.71239
+      Target Frame: world
+      X: 0
+      Y: 0
